@@ -12,12 +12,13 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f9fafb;
+            background-color: #f8f9fa;
+            /* Creamy background */
             min-height: 100vh;
             padding: 1rem;
         }
 
-        /* UTILITY CLASSES (Hardcoded Tailwind) */
+        /* --- UI UTILITY CLASSES (Hardcoded CSS) --- */
         .max-w-6xl {
             max-width: 72rem;
         }
@@ -40,7 +41,7 @@
         }
 
         .bg-gray-50 {
-            background-color: #f9fafb;
+            background-color: #f8f9fa;
         }
 
         .font-sans {
@@ -49,6 +50,10 @@
 
         .mb-2 {
             margin-bottom: 0.5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
         }
 
         .mb-6 {
@@ -65,6 +70,10 @@
 
         .mt-2 {
             margin-top: 0.5rem;
+        }
+
+        .mt-3 {
+            margin-top: 0.75rem;
         }
 
         .mr-2 {
@@ -93,6 +102,10 @@
 
         .space-x-2>*+* {
             margin-left: 0.5rem;
+        }
+
+        .space-x-4>*+* {
+            margin-left: 1rem;
         }
 
         .space-y-1>*+* {
@@ -211,6 +224,10 @@
             border-radius: 0.75rem;
         }
 
+        .rounded-full {
+            border-radius: 9999px;
+        }
+
         .rounded-l-md {
             border-top-left-radius: 0.375rem;
             border-bottom-left-radius: 0.375rem;
@@ -265,12 +282,13 @@
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
 
+        /* Adjusted shadow for better modern look */
         .shadow-md {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
         }
 
         .shadow-lg {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
         }
 
         .shadow-inner {
@@ -313,7 +331,19 @@
             border-color: transparent;
         }
 
-        /* TEXT AND COLORS */
+        .card {
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #e9ecef;
+        }
+
+        /* Subtle border for card */
+        .card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        }
+
+
+        /* TEXT AND COLORS (Poshakh Palette: Indigo/Navy and Gold/Mustard) */
         .text-xs {
             font-size: 0.75rem;
         }
@@ -359,95 +389,58 @@
         }
 
         .text-gray-500 {
-            color: #6b7280;
+            color: #6c757d;
         }
 
+        /* Darker gray for better contrast */
         .text-gray-400 {
             color: #9ca3af;
         }
 
+        /* INDIGO/NAVY - PRIMARY COLOR */
+        .text-indigo-800 {
+            color: #1e3a8a;
+        }
+
+        /* Deep Indigo */
+        .bg-indigo-100 {
+            background-color: #e0e7ff;
+        }
+
+        .bg-indigo-800 {
+            color: #1e3a8a;
+        }
+
+        /* ACCENT COLORS */
+        .text-gold-600 {
+            color: #D97706;
+        }
+
+        /* Gold/Mustard */
+        .bg-gold-100 {
+            background-color: #fff9e6;
+        }
+
+        .bg-gold-500 {
+            background-color: #f59e0b;
+        }
+
         .text-blue-500 {
-            color: #3b82f6;
+            color: #4361ee;
         }
 
-        .text-blue-600 {
-            color: #2563eb;
-        }
-
-        .text-blue-700 {
-            color: #1d4ed8;
-        }
-
-        .text-green-500 {
-            color: #10b981;
-        }
-
-        .text-green-600 {
-            color: #059669;
-        }
-
-        .text-green-100 {
-            background-color: #d1fae5;
-        }
-
-        .text-green-700 {
-            color: #047857;
-        }
-
-        .text-red-600 {
-            color: #dc2626;
-        }
-
-        .text-red-700 {
-            color: #b91c1c;
-        }
-
-        .text-red-100 {
-            background-color: #fee2e2;
-        }
-
+        /* Retained for link/system use */
         .text-white {
             color: #ffffff;
         }
 
-        .bg-white {
-            background-color: #ffffff;
+        /* SUCCESS & WARNING COLORS */
+        .text-green-600 {
+            color: #059669;
         }
 
-        .bg-blue-50 {
-            background-color: #eff6ff;
-        }
-
-        .bg-blue-100 {
-            background-color: #dbeafe;
-        }
-
-        .bg-blue-500 {
-            background-color: #3b82f6;
-        }
-
-        .bg-green-500 {
-            background-color: #10b981;
-        }
-
-        .bg-yellow-400 {
-            background-color: #facc15;
-        }
-
-        .bg-yellow-500 {
-            background-color: #f59e0b;
-        }
-
-        .bg-gray-100 {
-            background-color: #f3f4f6;
-        }
-
-        .bg-gray-200 {
-            background-color: #e5e7eb;
-        }
-
-        .bg-gray-300 {
-            background-color: #d1d5db;
+        .bg-green-100 {
+            background-color: #d1fae5;
         }
 
         .bg-red-100 {
@@ -458,13 +451,23 @@
             border-color: #ef4444;
         }
 
-        .bg-indigo-100 {
-            background-color: #e0e7ff;
+        /* NEUTRAL BACKGROUNDS */
+        .bg-white {
+            background-color: #ffffff;
         }
 
-        .bg-indigo-800 {
-            color: #3730a3;
+        .bg-gray-100 {
+            background-color: #f8f9fa;
         }
+
+        .bg-gray-200 {
+            background-color: #e9ecef;
+        }
+
+        .bg-gray-300 {
+            background-color: #d1d5db;
+        }
+
 
         .font-bold {
             font-weight: 700;
@@ -499,46 +502,42 @@
             cursor: not-allowed;
         }
 
-        .focus\:ring-blue-500:focus {
-            --tw-ring-color: #3b82f6;
+        .focus\:ring-indigo-800:focus {
+            --tw-ring-color: #1e3a8a;
             ring-width: 2px;
         }
 
-        .focus\:border-blue-500:focus {
-            border-color: #3b82f6;
+        .focus\:border-indigo-800:focus {
+            border-color: #1e3a8a;
         }
 
-        .hover\:bg-blue-700:hover {
-            background-color: #1d4ed8;
+        /* Button Colors (Updated to Indigo and Gold) */
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
         }
 
-        .hover\:bg-blue-500:hover {
-            background-color: #3b82f6;
+        .btn-primary:hover {
+            background-color: #3730a3;
         }
 
-        .hover\:bg-yellow-500:hover {
+        .btn-secondary {
+            background-color: #D97706;
+            color: white;
+        }
+
+        .btn-secondary:hover {
             background-color: #f59e0b;
         }
 
-        .hover\:bg-yellow-600:hover {
-            background-color: #d97706;
+        /* Form Focus */
+        .form-input-group input:focus,
+        .form-input-group select:focus {
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 1px #1e3a8a;
+            outline: none;
         }
 
-        .hover\:bg-red-200:hover {
-            background-color: #fecaca;
-        }
-
-        .hover\:bg-gray-400:hover {
-            background-color: #9ca3af;
-        }
-
-        .hover\:bg-blue-200:hover {
-            background-color: #bfdbfe;
-        }
-
-        .hover\:bg-indigo-200:hover {
-            background-color: #c7d2fe;
-        }
 
         /* LOADING */
         .loading-container {
@@ -550,7 +549,8 @@
 
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #3b82f6;
+            border-left-color: #1e3a8a;
+            /* Indigo spinner */
             border-radius: 50%;
             width: 24px;
             height: 24px;
@@ -597,6 +597,11 @@
                 grid-template-columns: repeat(3, minmax(0, 1fr));
             }
 
+            .lg\:grid-cols-4 {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+            /* Added 4-column grid */
             .col-span-1 {
                 grid-column: span 1 / span 1;
             }
@@ -607,6 +612,10 @@
 
             .col-span-3 {
                 grid-column: span 3 / span 3;
+            }
+
+            .col-span-4 {
+                grid-column: span 4 / span 4;
             }
         }
     </style>
@@ -628,12 +637,12 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Expose Firebase modules to the global window object for the Babel script to use
         window.firebase = {
             initializeApp, getAuth, signInAnonymously, onAuthStateChanged,
-            getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, serverTimestamp
+            getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, addDoc, serverTimestamp
         };
         window.FIREBASE_MODULES_LOADED = true;
     </script>
@@ -653,7 +662,7 @@
             authDomain: "poshakh-fabric-final.firebaseapp.com",
             projectId: "poshakh-fabric-final",
             storageBucket: "poshakh-fabric-final.firebasestorage.app",
-            messagingSenderId: "372598853447",
+            messagingSenderId: "3725988553447",
             appId: "1:372598853447:web:5d177d6bdc5066c02c0662"
         };
 
@@ -670,6 +679,15 @@
         const Shirt = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 4.5l-2.5 7h-11l-2.5-7"></path><path d="M22 10l-2 10"></path><path d="M2 10l2 10"></path><path d="M12 2l4 2.5v2.5H8V4.5z"></path></svg>;
         const Camera = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>;
         const ImageIcon = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>;
+        const DollarSign = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>;
+        const Hash = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>;
+        const User = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
+        const Tag = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 4.5l-2.5 7h-11l-2.5-7"></path><path d="M22 10l-2 10"></path><path d="M2 10l2 10"></path><path d="M12 2l4 2.5v2.5H8V4.5z"></path></svg>;
+        const Scissors = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>;
+        const Clock = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
+        const ChevronRight = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>;
+        const ChevronDown = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>;
+
 
         // --- CONSTANTS ---
         const MAX_FILE_SIZE_BYTES = 750 * 1024; // 750KB limit
@@ -694,13 +712,15 @@
 
         const App = () => {
             const { useState, useEffect, useMemo, useRef } = React;
+            const { collection, doc, setDoc, deleteDoc, query, onSnapshot, addDoc, serverTimestamp } = window.firebase;
 
             const [db, setDb] = useState(null);
             const [auth, setAuth] = useState(null);
             const [userId, setUserId] = useState(null);
             const [fabrics, setFabrics] = useState([]);
             const [loading, setLoading] = useState(true);
-            const [error, setError] = useState(null);
+            const [fatalError, setFatalError] = useState(null); // For connection/auth failures
+            const [operationalError, setOperationalError] = useState(null); // For form/CRUD failures
             const [isUploading, setIsUploading] = useState(false);
             const [userEmail, setUserEmail] = useState('Anonymous User');
 
@@ -714,12 +734,23 @@
                 totalLength: '',
                 unit: 'meters',
                 lengthRequiredPerOutfit: '',
+                costPerMeter: '', // NEW FIELD
             });
             const [newFabricImageFile, setNewFabricImageFile] = useState(null);
 
             // State for updating current stock
             const [updateFabricId, setUpdateFabricId] = useState(null);
             const [updateAmountUsed, setUpdateAmountUsed] = useState('');
+            // NEW TRACKING FIELDS
+            const [updateOrderNumber, setUpdateOrderNumber] = useState('');
+            const [updateProductName, setUpdateProductName] = useState('');
+            const [updateSize, setUpdateSize] = useState('');
+            const [updateCustomerName, setUpdateCustomerName] = useState('');
+
+            // State for viewing history
+            const [historyFabricId, setHistoryFabricId] = useState(null);
+            const [transactionHistory, setTransactionHistory] = useState([]);
+            const [expandedTransactionId, setExpandedTransactionId] = useState(null);
 
             // ------------------------------------
             // 1. FIREBASE INITIALIZATION & ANONYMOUS AUTH
@@ -730,7 +761,7 @@
                 if (!window.FIREBASE_MODULES_LOADED) {
                     const timer = setTimeout(() => {
                         if (!window.FIREBASE_MODULES_LOADED) {
-                            setError("Firebase modules failed to load.");
+                            setFatalError("Firebase modules failed to load.");
                             setLoading(false);
                         }
                     }, 5000); // 5 second timeout
@@ -750,7 +781,7 @@
                     // Anonymous Sign-in for shared access without login screen
                     signInAnonymously(firebaseAuth).catch(err => {
                         console.error("Anonymous Sign-in failed:", err);
-                        setError(`Authentication Failed: ${err.code}. Check Firebase Console for 'Anonymous' sign-in status.`);
+                        setFatalError(`Authentication Failed: ${err.code}. Check Firebase Console for 'Anonymous' sign-in status.`);
                         setLoading(false);
                     });
 
@@ -771,7 +802,7 @@
                     return () => unsubscribeAuth();
                 } catch (e) {
                     console.error("Firebase Initialization Error:", e);
-                    setError("Could not initialize Firebase. Check API keys and network connection.");
+                    setFatalError("Could not initialize Firebase. Check API keys and network connection.");
                     setLoading(false);
                 }
             }, []);
@@ -793,20 +824,25 @@
                             const data = doc.data();
                             const currentLength = parseFloat(data.currentLength) || 0;
                             const lengthRequiredPerOutfit = parseFloat(data.lengthRequiredPerOutfit) || 1;
+                            const costPerMeter = parseFloat(data.costPerMeter) || 0;
+
                             const potentialOutfits = Math.floor(currentLength / lengthRequiredPerOutfit);
+                            const totalCurrentCost = currentLength * costPerMeter; // NEW CALCULATION
 
                             return {
                                 id: doc.id,
                                 ...data,
                                 currentLength,
                                 lengthRequiredPerOutfit,
-                                potentialOutfits
+                                costPerMeter, // Ensure cost is present
+                                potentialOutfits,
+                                totalCurrentCost // NEW DERIVED FIELD
                             };
                         });
                         setFabrics(fabricList);
                     }, (err) => {
                         console.error("Firestore Listener Error:", err);
-                        setError("Failed to fetch real-time data from Firestore. Check security rules.");
+                        setOperationalError("Failed to fetch real-time data from Firestore. Check security rules.");
                     });
 
                     return () => unsubscribe();
@@ -816,7 +852,42 @@
             }, [db, userId]);
 
             // ------------------------------------
-            // 3. CRUD FUNCTIONS (FIRESTORE)
+            // 3. TRANSACTION HISTORY LISTENER
+            // ------------------------------------
+            useEffect(() => {
+                if (!db || !historyFabricId) {
+                    setTransactionHistory([]);
+                    return;
+                }
+
+                try {
+                    // Path to the subcollection: fabrics/{fabricId}/history
+                    const historyCollectionPath = `${COLLECTION_PATH}/${historyFabricId}/history`;
+                    const historyCollectionRef = collection(db, historyCollectionPath);
+                    const q = query(historyCollectionRef);
+
+                    const unsubscribeHistory = onSnapshot(q, (snapshot) => {
+                        const historyList = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        })).sort((a, b) => b.updatedAt - a.updatedAt); // Sort newest first
+
+                        setTransactionHistory(historyList);
+                    }, (err) => {
+                        console.error("History Listener Error:", err);
+                        setOperationalError(`Failed to load history for ${historyFabricId}.`);
+                    });
+
+                    return () => unsubscribeHistory();
+                } catch (e) {
+                    console.error("History Query Error:", e);
+                }
+            }, [db, historyFabricId]);
+
+
+
+            // ------------------------------------
+            // 4. CRUD FUNCTIONS (FIRESTORE)
             // ------------------------------------
 
             // Handler for file selection from input
@@ -828,20 +899,27 @@
                 e.target.value = null; // Reset input field
             };
 
+            const resetFormAndState = () => {
+                setNewFabric({ name: '', totalLength: '', unit: 'meters', lengthRequiredPerOutfit: '', costPerMeter: '' }); // RESET NEW FIELD
+                setNewFabricImageFile(null);
+                setOperationalError(null);
+            }
+
             const handleAddFabric = async (e) => {
                 e.preventDefault();
                 if (!db || !userId) return;
 
-                const { name, totalLength, unit, lengthRequiredPerOutfit } = newFabric;
+                const { name, totalLength, unit, lengthRequiredPerOutfit, costPerMeter } = newFabric; // NEW FIELD DESTRUCTURED
                 let imageUrlToStore = '';
 
-                if (!name || !totalLength || !lengthRequiredPerOutfit) {
-                    setError("Please fill in the fabric Name, Total Length, and Required Length per Outfit.");
+                if (!name || !totalLength || !lengthRequiredPerOutfit || !costPerMeter) {
+                    setOperationalError("Please fill in ALL required fields (Name, Length, Required Length, and Cost per Meter).");
                     return;
                 }
 
-                setIsUploading(true);
-                setError(null);
+                // Clear any previous error before trying again
+                setOperationalError(null);
+                setIsUploading(true); // START UPLOADING
 
                 try {
                     if (newFabricImageFile) {
@@ -849,16 +927,25 @@
                         const sizeInBytes = getBase64ByteSize(rawDataUrl);
 
                         if (sizeInBytes > MAX_FILE_SIZE_BYTES) {
-                            setError(`Image is too large (${(sizeInBytes / 1024).toFixed(0)}KB). The limit is 750 KB.`);
+                            setOperationalError(`Image is too large (${(sizeInBytes / 1024).toFixed(0)}KB). The limit is 750 KB.`);
                             return;
                         }
                         imageUrlToStore = rawDataUrl;
                     } else {
-                        imageUrlToStore = `https://placehold.co/100x100/3b82f6/ffffff?text=${name.substring(0, 2).toUpperCase()}`;
+                        // Generate placeholder image
+                        const placeholderText = name.substring(0, 2).toUpperCase() || 'FAB';
+                        imageUrlToStore = `https://placehold.co/100x100/1E3A8A/ffffff?text=${placeholderText}`;
                     }
 
-                    const currentLengthFloat = parseFloat(totalLength);
-                    const lengthRequiredPerOutfitFloat = parseFloat(lengthRequiredPerOutfit);
+                    // --- Input Validation and Data Preparation ---
+                    const currentLengthFloat = parseFloat(totalLength) || 0;
+                    const lengthRequiredPerOutfitFloat = parseFloat(lengthRequiredPerOutfit) || 0;
+                    const costPerMeterFloat = parseFloat(costPerMeter) || 0; // NEW FIELD PARSED
+
+                    if (currentLengthFloat <= 0 || lengthRequiredPerOutfitFloat <= 0 || costPerMeterFloat < 0) {
+                        setOperationalError("Length and Cost must be valid positive numbers.");
+                        return; // Exit here
+                    }
 
                     const newDoc = {
                         name,
@@ -866,22 +953,25 @@
                         currentLength: currentLengthFloat,
                         unit,
                         lengthRequiredPerOutfit: lengthRequiredPerOutfitFloat,
+                        costPerMeter: costPerMeterFloat, // NEW FIELD SAVED
                         imageUrl: imageUrlToStore,
                         updatedByEmail: userEmail,
-                        updatedAt: window.firebase.serverTimestamp(),
-                        createdAt: window.firebase.serverTimestamp(),
+                        updatedAt: serverTimestamp(),
+                        createdAt: serverTimestamp(),
                     };
 
                     const fabricCollectionRef = collection(db, COLLECTION_PATH);
-                    await window.firebase.setDoc(window.firebase.doc(fabricCollectionRef), newDoc);
+                    // DATABASE COMMIT
+                    await setDoc(doc(fabricCollectionRef), newDoc);
 
-                    setNewFabric({ name: '', totalLength: '', unit: 'meters', lengthRequiredPerOutfit: '' });
-                    setNewFabricImageFile(null);
-                    setError(null);
+                    // SUCCESS PATH: Call the consolidated reset function
+                    resetFormAndState();
+
                 } catch (e) {
                     console.error("Error adding document: ", e);
-                    setError(`Failed to add new fabric stock: ${e.message}. Check Firestore Security Rules!`);
+                    setOperationalError(`Failed to add new fabric stock: ${e.message}. Check Firestore Security Rules!`);
                 } finally {
+                    // THE NEW, DEFINITIVE RESET: This runs after success OR failure
                     setIsUploading(false);
                 }
             };
@@ -889,13 +979,16 @@
             const handleDeleteFabric = async (id) => {
                 if (!db || !userId) return;
 
+                // NOTE: Deleting the main document does NOT automatically delete subcollections (history).
+                // For this single-file app, we rely on Firebase rules or manual cleanup later.
+
                 try {
                     const docRef = doc(db, COLLECTION_PATH, id);
                     await deleteDoc(docRef);
-                    setError(null);
+                    setOperationalError(null);
                 } catch (e) {
                     console.error("Error deleting document: ", e);
-                    setError(`Failed to delete fabric entry: ${e.message}. Check Security Rules.`);
+                    setOperationalError(`Failed to delete fabric entry: ${e.message}. Check Security Rules.`);
                 }
             };
 
@@ -905,7 +998,7 @@
 
                 const amountUsed = parseFloat(updateAmountUsed);
                 if (isNaN(amountUsed) || amountUsed <= 0) {
-                    setError("Please enter a valid amount of fabric used (a positive number).");
+                    setOperationalError("Please enter a valid amount of fabric used (a positive number).");
                     return;
                 }
 
@@ -915,35 +1008,104 @@
                 const newCurrentLength = fabric.currentLength - amountUsed;
 
                 if (newCurrentLength < 0) {
-                    setError(`Cannot use ${amountUsed} ${fabric.unit}. Only ${fabric.currentLength.toFixed(2)} ${fabric.unit} remaining.`);
+                    setOperationalError(`Cannot use ${amountUsed} ${fabric.unit}. Only ${fabric.currentLength.toFixed(2)} ${fabric.unit} remaining.`);
                     return;
                 }
 
                 try {
-                    const docRef = doc(db, COLLECTION_PATH, updateFabricId);
+                    const fabricDocRef = doc(db, COLLECTION_PATH, updateFabricId);
 
-                    await setDoc(docRef, {
+                    // 1. ADD NEW TRANSACTION TO SUBCOLLECTION (HISTORY)
+                    const historyCollectionRef = collection(fabricDocRef, 'history');
+
+                    const transactionData = {
+                        amountUsed: amountUsed,
+                        orderNumber: updateOrderNumber || 'N/A',
+                        productName: updateProductName || 'N/A',
+                        size: updateSize || 'N/A',
+                        customerName: updateCustomerName || 'N/A',
+                        usedByEmail: userEmail,
+                        usedAt: serverTimestamp(),
+                    };
+
+                    await addDoc(historyCollectionRef, transactionData);
+
+                    // 2. UPDATE MAIN DOCUMENT (CURRENT LENGTH)
+                    const updateData = {
                         currentLength: newCurrentLength,
+                        // Set the current transaction details as the "last used" summary in the main document
+                        lastOrderNumber: transactionData.orderNumber,
+                        lastProductName: transactionData.productName,
+                        lastCustomerName: transactionData.customerName,
+                        lastAmountUsed: transactionData.amountUsed,
                         updatedByEmail: userEmail,
-                        updatedAt: window.firebase.serverTimestamp(),
-                    }, { merge: true }); // Use merge to only update specified fields
+                        updatedAt: serverTimestamp(),
+                    };
 
+                    await setDoc(fabricDocRef, updateData, { merge: true });
+
+                    // Clear update form states and switch back to viewing history
                     setUpdateFabricId(null);
                     setUpdateAmountUsed('');
-                    setError(null);
+                    setUpdateOrderNumber('');
+                    setUpdateProductName('');
+                    setUpdateSize('');
+                    setUpdateCustomerName('');
+                    setOperationalError(null);
+                    setHistoryFabricId(fabric.id); // Automatically open history view after successful update
+
                 } catch (e) {
-                    console.error("Error updating stock: ", e);
-                    setError(`Failed to update fabric stock: ${e.message}. Check Security Rules.`);
+                    console.error("Error updating stock and history: ", e);
+                    setOperationalError(`Failed to update stock and log history: ${e.message}. Check Security Rules.`);
                 }
             };
 
+            // Toggle history view
+            const toggleHistory = (fabricId) => {
+                setHistoryFabricId(historyFabricId === fabricId ? null : fabricId);
+                setExpandedTransactionId(null); // Close any expanded transaction when changing fabrics
+            };
+
+            const toggleTransactionDetails = (transactionId) => {
+                setExpandedTransactionId(expandedTransactionId === transactionId ? null : transactionId);
+            };
+
             // ------------------------------------
-            // 4. DERIVED STATE & UI RENDERING
+            // 5. DERIVED STATE & UI RENDERING
             // ------------------------------------
 
             const totalPotentialOutfits = useMemo(() => {
                 return fabrics.reduce((sum, f) => sum + f.potentialOutfits, 0);
             }, [fabrics]);
+
+            const totalInventoryValue = useMemo(() => {
+                // Sum the calculated cost of all remaining stock items
+                const total = fabrics.reduce((sum, f) => sum + f.totalCurrentCost, 0);
+                return total.toFixed(2);
+            }, [fabrics]);
+
+            // Format Firestore Timestamp for display
+            const formatTimestamp = (timestamp, timeOnly = false) => {
+                if (timestamp && timestamp.toDate) {
+                    const date = timestamp.toDate();
+                    if (timeOnly) {
+                        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
+                    return date.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+                }
+                return 'N/A';
+            };
+
+
+            if (fatalError) {
+                return (
+                    <div className="p-8 bg-red-100 border-l-4 border-red-500 text-red-700 min-h-screen">
+                        <p className="font-bold">FATAL APPLICATION ERROR</p>
+                        <p>{fatalError}</p>
+                        <p className="mt-2 text-sm text-gray-600">Please check your Firebase Console settings (Authentication & API Keys).</p>
+                    </div>
+                );
+            }
 
             if (loading || !userId) {
                 return (
@@ -953,25 +1115,6 @@
                     </div>
                 );
             }
-
-            if (error) {
-                return (
-                    <div className="p-8 bg-red-100 border-l-4 border-red-500 text-red-700 min-h-screen">
-                        <p className="font-bold">Application Error</p>
-                        <p>{error}</p>
-                        <p className="mt-2 text-sm text-gray-600">Storage Mode: Shared (Firebase). Check Console for details.</p>
-                    </div>
-                );
-            }
-
-            // Format Firestore Timestamp for display
-            const formatTimestamp = (timestamp) => {
-                if (timestamp && timestamp.toDate) {
-                    return timestamp.toDate().toLocaleTimeString();
-                }
-                return timestamp || 'N/A';
-            };
-
 
             return (
                 <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans">
@@ -984,21 +1127,40 @@
                             This version is **Shared and Live**. All updates are synchronized in real-time on your Firebase project.
                         </p>
 
+                        {/* Operational Error Display */}
+                        {operationalError && (
+                            <div className="p-3 mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md">
+                                <p className="font-bold">Action Failed</p>
+                                <p className="text-sm">{operationalError}</p>
+                                <button onClick={() => setOperationalError(null)} className="text-xs text-red-600 font-medium mt-1">Dismiss</button>
+                            </div>
+                        )}
+
                         {/* Global Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                            <div className="card bg-blue-500 text-white p-6 rounded-xl shadow-lg flex items-center">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            {/* Total Fabrics Card (Indigo Theme) */}
+                            <div className="card btn-primary text-white p-6 rounded-xl shadow-lg flex items-center">
                                 <Gauge className="w-8 h-8 mr-4" />
 
                                 <div>
-                                    <p className="text-sm opacity-80 uppercase font-semibold">Total Fabrics</p>
+                                    <p className="text-sm opacity-80 uppercase font-semibold">Total Fabric SKUs</p>
                                     <p className="text-3xl font-bold">{fabrics.length}</p>
                                 </div>
                             </div>
-                            <div className="card bg-green-500 text-white p-6 rounded-xl shadow-lg flex items-center col-span-1 md:col-span-2">
+                            {/* Total Potential Outfits Card (Gold/Mustard Theme) */}
+                            <div className="card btn-secondary text-white p-6 rounded-xl shadow-lg flex items-center">
                                 <Shirt className="w-8 h-8 mr-4" />
                                 <div>
-                                    <p className="text-sm opacity-80 uppercase font-semibold">Total Potential Outfits Remaining</p>
+                                    <p className="text-sm opacity-80 uppercase font-semibold">Total Potential Outfits</p>
                                     <p className="text-3xl font-bold">{totalPotentialOutfits}</p>
+                                </div>
+                            </div>
+                            {/* Total Inventory Value Card (Green/Success Theme) */}
+                            <div className="card bg-green-600 text-white p-6 rounded-xl shadow-lg flex items-center col-span-1 md:col-span-2 lg:col-span-2">
+                                <DollarSign className="w-8 h-8 mr-4" />
+                                <div>
+                                    <p className="text-sm opacity-80 uppercase font-semibold">Total Inventory Value (Cost)</p>
+                                    <p className="text-3xl font-bold">₹ {totalInventoryValue}</p>
                                 </div>
                             </div>
                         </div>
@@ -1006,27 +1168,28 @@
                         {/* Add New Fabric Section */}
                         <div className="card bg-white p-6 rounded-xl shadow-lg mb-8">
                             <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center"><Plus className="w-5 h-5 mr-2" /> Add New Fabric Stock</h2>
-                            <form onSubmit={handleAddFabric} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {/* Fabric Name */}
+                            <form onSubmit={handleAddFabric} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                                {/* 1. Fabric Name */}
                                 <div className="form-input-group">
                                     <label className="block text-sm font-medium text-gray-700">Fabric Name</label>
                                     <input
                                         type="text"
                                         required
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-blue-500 focus:border-border-blue-500"
                                         value={newFabric.name}
                                         onChange={(e) => setNewFabric({ ...newFabric, name: e.target.value })}
                                     />
                                 </div>
 
-                                {/* Total Length */}
+                                {/* 2. Total Length */}
                                 <div className="form-input-group">
                                     <label className="block text-sm font-medium text-gray-700">Total Length in Stock</label>
                                     <div className="mt-1 flex rounded-md shadow-sm">
                                         <input
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="0.1"
                                             required
                                             className="flex-1 block w-full rounded-l-md border-gray-300 p-2 border focus:ring-blue-500 focus:border-blue-500"
                                             value={newFabric.totalLength}
@@ -1043,7 +1206,22 @@
                                     </div>
                                 </div>
 
-                                {/* Length Required Per Outfit */}
+                                {/* 3. Cost Per Meter (NEW INPUT) */}
+                                <div className="form-input-group">
+                                    <label className="block text-sm font-medium text-gray-700">Cost per Meter (₹)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        required
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                        value={newFabric.costPerMeter}
+                                        onChange={(e) => setNewFabric({ ...newFabric, costPerMeter: e.target.value })}
+                                    />
+                                </div>
+
+
+                                {/* 4. Length Required Per Outfit */}
                                 <div className="form-input-group">
                                     <label className="block text-sm font-medium text-gray-700">Length Required per Outfit</label>
                                     <input
@@ -1055,11 +1233,11 @@
                                         value={newFabric.lengthRequiredPerOutfit}
                                         onChange={(e) => setNewFabric({ ...newFabric, lengthRequiredPerOutfit: e.target.value })}
                                     />
-                                    <p className="mt-1 text-xs text-gray-500">How much {newFabric.unit} to make one average outfit?</p>
+                                    <p className="mt-1 text-xs text-gray-500">Meters to make one average outfit.</p>
                                 </div>
 
-                                {/* Image Capture / Gallery Buttons */}
-                                <div className="md:col-span-2 lg:col-span-3 form-input-group">
+                                {/* Image Capture / Gallery Buttons (Spans full width) */}
+                                <div className="lg:col-span-4 md:col-span-2 form-input-group">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Fabric Image (Choose Option)</label>
                                     <div className="flex space-x-4">
                                         {/* Hidden input for camera */}
@@ -1075,7 +1253,7 @@
                                         <button
                                             type="button"
                                             onClick={() => cameraInputRef.current.click()}
-                                            className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-blue-100 text-blue-800 rounded-lg shadow-md hover:bg-blue-200 transition duration-150"
+                                            className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-indigo-100 text-indigo-800 rounded-lg shadow-md hover:bg-indigo-200 transition duration-150"
                                         >
                                             <Camera className="w-6 h-6" />
                                             <span className="text-xs mt-1">Take Photo</span>
@@ -1093,32 +1271,34 @@
                                         <button
                                             type="button"
                                             onClick={() => galleryInputRef.current.click()}
-                                            className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-indigo-100 text-indigo-800 rounded-lg shadow-md hover:bg-indigo-200 transition duration-150"
+                                            className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-gold-100 text-indigo-800 rounded-lg shadow-md hover:bg-gray-200 transition duration-150"
                                         >
                                             <ImageIcon className="w-6 h-6" />
                                             <span className="text-xs mt-1">Upload from Gallery</span>
                                         </button>
+                                        <div className="flex flex-col justify-center ml-4">
+                                            {newFabricImageFile && (
+                                                <p className="text-xs text-green-600 font-semibold">
+                                                    File selected: {newFabricImageFile.name}
+                                                    {(newFabricImageFile.size / 1024).toFixed(0) > 750 ?
+                                                        <span className="text-red-600 font-bold ml-2"> (Too Large! Limit 750 KB)</span> : ''
+                                                    }
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
 
-                                    {newFabricImageFile && (
-                                        <p className="mt-3 text-xs text-green-600">
-                                            File selected: <span className="font-semibold">{newFabricImageFile.name}</span>
-                                            {(newFabricImageFile.size / 1024).toFixed(0) > 750 ?
-                                                <span className="text-red-600 font-bold ml-2"> (Too Large! Limit 750 KB)</span> : ''
-                                            }
-                                        </p>
-                                    )}
                                     <p className="mt-1 text-xs text-gray-500">
                                         Images are stored in Firebase documents as a Base64 string (Max 750 KB).
                                     </p>
                                 </div>
 
-                                {/* Submit Button */}
-                                <div className="md:col-span-2 lg:col-span-3 pt-2 form-input-group">
+                                {/* Submit Button (Spans full width) */}
+                                <div className="lg:col-span-4 md:col-span-2 pt-2 form-input-group">
                                     <button
                                         type="submit"
                                         disabled={isUploading || !db}
-                                        className={`w-full justify-center inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white transition duration-150 ${isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'}`}
+                                        className={`w-full justify-center inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white transition duration-150 ${isUploading ? 'bg-gray-500 cursor-not-allowed' : 'btn-primary'}`}
                                     >
                                         {isUploading ? (
                                             <>
@@ -1142,84 +1322,72 @@
                         ) : (
                             <div className="grid grid-cols-1 gap-6">
                                 {fabrics.map((fabric) => (
-                                    <div key={fabric.id} className="card bg-white p-5 rounded-xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center">
-                                        <div className="flex items-center mb-4 md:mb-0 w-full md:w-3/5">
-                                            {/* Image Placeholder/Display */}
-                                            <img
-                                                src={fabric.imageUrl}
-                                                alt={fabric.name}
-                                                className="w-20 h-20 object-cover rounded-lg shadow-inner mr-4 border border-gray-200"
-                                                onError={(e) => {
-                                                    e.target.onerror = null;
-                                                    e.target.src = `https://placehold.co/80x80/ef4444/ffffff?text=Image+N/A`;
-                                                }}
-                                            />
-                                            {/* Fabric Details */}
-                                            <div>
-                                                <h3 className="text-xl font-bold text-gray-900">{fabric.name}</h3>
-                                                <div className="text-sm text-gray-600 space-y-1 mt-1">
-                                                    <p className="flex items-center"><Ruler className="w-4 h-4 mr-2 text-blue-500" /> Stock: {fabric.currentLength.toFixed(2)} {fabric.unit}</p>
-                                                    <p className="flex items-center"><Shirt className="w-4 h-4 mr-2 text-green-500" /> Req. per Outfit: {fabric.lengthRequiredPerOutfit.toFixed(2)} {fabric.unit}</p>
-                                                </div>
-                                                <p className="text-xs text-gray-400 mt-2">
-                                                    Last updated by:
-                                                    <span className="font-semibold text-gray-600 ml-1">{fabric.updatedByEmail || 'Local User'}</span>
-                                                    <span className="ml-2">({formatTimestamp(fabric.updatedAt) || 'N/A'})</span>
-                                                </p>
-                                            </div>
-                                        </div>
+                                    <div key={fabric.id} className="card bg-white p-5 rounded-xl shadow-md flex flex-col space-y-4">
 
-                                        {/* Stock & Calculation */}
-                                        <div className="w-full md:w-2/5 flex flex-col space-y-3">
-                                            <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
+                                        {/* Main Item Row */}
+                                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+                                            <div className="flex items-center mb-4 md:mb-0 w-full md:w-3/5">
+                                                {/* Image Placeholder/Display */}
+                                                <img
+                                                    src={fabric.imageUrl}
+                                                    alt={fabric.name}
+                                                    className="w-20 h-20 object-cover rounded-lg shadow-inner mr-4 border border-gray-200"
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = `https://placehold.co/80x80/1E3A8A/ffffff?text=${(fabric.name || 'FAB').substring(0, 3).toUpperCase()}`;
+                                                    }}
+                                                />
+                                                {/* Fabric Details */}
                                                 <div>
-                                                    <p className="text-sm font-medium text-gray-500">Remaining Stock</p>
-                                                    <p className="text-2xl font-extrabold text-blue-600">
-                                                        {fabric.currentLength.toFixed(2)} {fabric.unit}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-500">Potential Outfits</p>
-                                                    <p className="text-2xl font-extrabold text-green-600">
-                                                        {fabric.potentialOutfits}
+                                                    <h3 className="text-xl font-bold text-gray-900">{fabric.name}</h3>
+                                                    <div className="text-sm text-gray-600 space-y-1 mt-1">
+                                                        <p className="flex items-center"><Ruler className="w-4 h-4 mr-2 text-indigo-800" /> Stock: {fabric.currentLength.toFixed(2)} {fabric.unit}</p>
+                                                        <p className="flex items-center"><Shirt className="w-4 h-4 mr-2 text-gold-600" /> Req. per Outfit: {fabric.lengthRequiredPerOutfit.toFixed(2)} {fabric.unit}</p>
+                                                        <p className="flex items-center text-green-600"><DollarSign className="w-4 h-4 mr-2" /> Current Cost: ₹ {fabric.totalCurrentCost.toFixed(2)}</p>
+                                                    </div>
+                                                    <p className="text-xs text-gray-400 mt-2">
+                                                        Last updated:
+                                                        <span className="font-semibold text-gray-600 ml-1">{formatTimestamp(fabric.updatedAt)}</span> by
+                                                        <span className="font-semibold text-gray-600 ml-1">{fabric.updatedByEmail || 'N/A'}</span>
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            {/* Stock Update Form / Delete Button */}
-                                            {updateFabricId === fabric.id ? (
-                                                <form onSubmit={handleUpdateStock} className="flex space-x-2">
-                                                    <input
-                                                        type="number"
-                                                        step="0.01"
-                                                        min="0.01"
-                                                        required
-                                                        placeholder={`Amount used (${fabric.unit})`}
-                                                        className="flex-1 p-2 border border-yellow-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
-                                                        value={updateAmountUsed}
-                                                        onChange={(e) => setUpdateAmountUsed(e.target.value)}
-                                                    />
-                                                    <button
-                                                        type="submit"
-                                                        className="bg-yellow-500 text-gray-900 px-4 py-2 rounded-md font-medium hover:bg-yellow-600 transition duration-150"
-                                                    >
-                                                        Use
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => { setUpdateFabricId(null); setUpdateAmountUsed(''); }}
-                                                        className="bg-gray-300 text-gray-800 px-3 py-2 rounded-md font-medium hover:bg-gray-400 transition duration-150"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                </form>
-                                            ) : (
+                                            {/* Stock & Calculation */}
+                                            <div className="w-full md:w-2/5 flex flex-col space-y-3">
+                                                <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-gray-500">Remaining Stock</p>
+                                                        <p className="text-2xl font-extrabold text-indigo-800">
+                                                            {fabric.currentLength.toFixed(2)} {fabric.unit}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-gray-500">Potential Outfits</p>
+                                                        <p className="text-2xl font-extrabold text-gold-600">
+                                                            {fabric.potentialOutfits}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Action Buttons */}
                                                 <div className="flex space-x-2">
                                                     <button
-                                                        onClick={() => setUpdateFabricId(fabric.id)}
-                                                        className="flex-1 bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-medium hover:bg-yellow-500 transition duration-150 shadow-md"
+                                                        onClick={() => toggleHistory(fabric.id)}
+                                                        className={`flex-1 px-4 py-2 rounded-md font-medium transition duration-150 shadow-md flex items-center justify-center ${historyFabricId === fabric.id ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
                                                     >
-                                                        Update Stock (Use Material)
+                                                        {historyFabricId === fabric.id ? 'Hide History' : 'View History'}
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            setUpdateFabricId(fabric.id);
+                                                            setHistoryFabricId(null); // Hide history when updating
+                                                        }}
+                                                        className={`flex-1 btn-secondary text-gray-900 px-4 py-2 rounded-md font-medium transition duration-150 shadow-md ${updateFabricId === fabric.id ? 'bg-gray-400' : ''}`}
+                                                        disabled={updateFabricId === fabric.id}
+                                                    >
+                                                        Update Stock
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeleteFabric(fabric.id)}
@@ -1229,8 +1397,144 @@
                                                         <Trash2 className="w-5 h-5" />
                                                     </button>
                                                 </div>
-                                            )}
+                                            </div>
                                         </div>
+
+                                        {/* History View or Update Form Container */}
+                                        {updateFabricId === fabric.id && (
+                                            <div className="w-full pt-4 border-t border-gray-200 mt-4">
+                                                <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Scissors className="w-5 h-5 mr-2 text-gold-600" /> Log Stock Reduction</h4>
+                                                <form onSubmit={handleUpdateStock} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                                                    {/* Row 1: Amount Used */}
+                                                    <div className="md:col-span-2 form-input-group">
+                                                        <label className="block text-sm font-medium text-gray-700">Amount Used ({fabric.unit})</label>
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0.01"
+                                                            required
+                                                            placeholder={`Enter amount used (e.g., ${fabric.lengthRequiredPerOutfit.toFixed(2)})`}
+                                                            className="w-full p-2 border border-yellow-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
+                                                            value={updateAmountUsed}
+                                                            onChange={(e) => setUpdateAmountUsed(e.target.value)}
+                                                        />
+                                                    </div>
+
+                                                    {/* Row 2: Order Details */}
+                                                    <div className="form-input-group">
+                                                        <label className="block text-sm font-medium text-gray-700 flex items-center"><Hash className="w-4 h-4 mr-1" /> Order Number</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Order # (e.g., 1002)"
+                                                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                                                            value={updateOrderNumber}
+                                                            onChange={(e) => setUpdateOrderNumber(e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <div className="form-input-group">
+                                                        <label className="block text-sm font-medium text-gray-700 flex items-center"><User className="w-4 h-4 mr-1" /> Customer Name</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Customer Name"
+                                                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                                                            value={updateCustomerName}
+                                                            onChange={(e) => setUpdateCustomerName(e.target.value)}
+                                                        />
+                                                    </div>
+
+                                                    {/* Row 3: Product Details */}
+                                                    <div className="form-input-group">
+                                                        <label className="block text-sm font-medium text-gray-700 flex items-center"><Tag className="w-4 h-4 mr-1" /> Product Name</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Product (e.g., Blazer)"
+                                                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                                                            value={updateProductName}
+                                                            onChange={(e) => setUpdateProductName(e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <div className="form-input-group">
+                                                        <label className="block text-sm font-medium text-gray-700">Size/Notes</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Size (e.g., L) or specific notes"
+                                                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                                                            value={updateSize}
+                                                            onChange={(e) => setUpdateSize(e.target.value)}
+                                                        />
+                                                    </div>
+
+                                                    {/* Action Buttons */}
+                                                    <div className="md:col-span-2 flex space-x-2 mt-3">
+                                                        <button
+                                                            type="submit"
+                                                            className="flex-1 btn-secondary text-gray-900 px-4 py-2 rounded-md font-medium transition duration-150"
+                                                        >
+                                                            Update Stock
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setUpdateFabricId(null);
+                                                                setUpdateAmountUsed('');
+                                                                setUpdateOrderNumber('');
+                                                                setUpdateProductName('');
+                                                                setUpdateSize('');
+                                                                setUpdateCustomerName('');
+                                                                setOperationalError(null);
+                                                            }}
+                                                            className="bg-gray-300 text-gray-800 px-3 py-2 rounded-md font-medium hover:bg-gray-400 transition duration-150"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        )}
+
+                                        {/* Transaction History Section */}
+                                        {historyFabricId === fabric.id && (
+                                            <div className="w-full pt-4 border-t border-gray-200 mt-4 bg-gray-50 rounded-lg p-3">
+                                                <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Clock className="w-5 h-5 mr-2 text-indigo-800" /> Usage History ({transactionHistory.length} logs)</h4>
+
+                                                {transactionHistory.length === 0 ? (
+                                                    <p className="text-sm text-gray-500 ml-2">No usage logs found for this fabric.</p>
+                                                ) : (
+                                                    <div className="space-y-2">
+                                                        {transactionHistory.map((tx) => (
+                                                            <div key={tx.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                                                {/* Summary Bar */}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => toggleTransactionDetails(tx.id)}
+                                                                    className="w-full flex justify-between items-center p-3 text-left hover:bg-gray-50 transition duration-100"
+                                                                >
+                                                                    <div className="flex items-center text-sm font-semibold">
+                                                                        <span className="text-indigo-800 mr-3">{tx.orderNumber || 'N/A'}</span>
+                                                                        <span className="text-red-600 mr-3 font-extrabold">-{tx.amountUsed.toFixed(2)} {fabric.unit}</span>
+                                                                        <span className="text-gray-500 font-normal flex items-center"><Clock className="w-4 h-4 mr-1 ml-2" /> {formatTimestamp(tx.usedAt)}</span>
+                                                                    </div>
+                                                                    {expandedTransactionId === tx.id ? <ChevronDown className="w-5 h-5 text-gray-600" /> : <ChevronRight className="w-5 h-5 text-gray-600" />}
+                                                                </button>
+
+                                                                {/* Expanded Details */}
+                                                                {expandedTransactionId === tx.id && (
+                                                                    <div className="p-3 pt-0 border-t border-gray-200 bg-gray-50 text-xs space-y-1">
+                                                                        <p><span className="font-semibold text-gray-700">Product:</span> {tx.productName || 'N/A'} (Size: {tx.size || 'N/A'})</p>
+                                                                        <p><span className="font-semibold text-gray-700">Customer:</span> {tx.customerName || 'N/A'}</p>
+                                                                        <p><span className="font-semibold text-gray-700">Logged By:</span> {tx.usedByEmail || 'N/A'} at {formatTimestamp(tx.usedAt, true)}</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                            </div>
+                                        )}
+
+
                                     </div>
                                 ))}
                             </div>
