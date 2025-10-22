@@ -178,7 +178,7 @@
         }
 
         .justify-center {
-            justify-content: center;
+            justify-center;
         }
 
         .justify-between {
@@ -699,6 +699,11 @@
         const COLLECTION_PATH = 'artifacts/poshakh-fabric-manager/public/data/fabrics';
         const APP_ID = 'poshakh-fabric-manager'; // Used for the artifacts path
 
+        // --- GOOGLE SHEET WEBHOOK URL ---
+        // PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT URL HERE (From Step 1 of the last response)
+        const GOOGLE_SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzZ26t4N5xFMKov589d26UP_VWBsqKj2Idcow_t9KWBD_qvbzk5e694Ea780iQKSzHo/exec';
+
+
         // Icons (simplified from lucide-react for single-file HTML)
         const Plus = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
         const Trash2 = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M5 6L6 6L6 6"></path><line x1="15" y1="3" x2="9" y2="3"></line></svg>;
@@ -736,6 +741,32 @@
             const base64String = dataUrl.split(',')[1];
             return Math.ceil(base64String.length * 3 / 4);
         };
+
+        /**
+         * Sends data to the Google Apps Script Webhook.
+         * Runs in the background and does not block the main app flow.
+         */
+        const pushToGoogleSheet = async (payload) => {
+            if (!GOOGLE_SHEET_WEBHOOK_URL) {
+                console.warn("Skipping Google Sheet update: GOOGLE_SHEET_WEBHOOK_URL is not set.");
+                return;
+            }
+            try {
+                const response = await fetch(GOOGLE_SHEET_WEBHOOK_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Important for GAS webhooks to avoid CORS issues
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                // Note: Due to 'no-cors' mode, we often cannot read the response status directly,
+                // but a successful fetch indicates the data was sent.
+                console.log('Data sent to Google Sheet webhook.');
+            } catch (error) {
+                console.error("Failed to push data to Google Sheet:", error);
+            }
+        };
+
 
         const App = () => {
             const { useState, useEffect, useMemo, useRef } = React;
@@ -991,6 +1022,18 @@
                     // DATABASE COMMIT
                     await setDoc(doc(fabricCollectionRef), newDoc);
 
+                    // PUSH TO GOOGLE SHEET (TYPE: ADD)
+                    pushToGoogleSheet({
+                        fabricName: newDoc.name,
+                        type: 'ADD',
+                        length: newDoc.totalLength,
+                        unit: newDoc.unit,
+                        cost: newDoc.costPerMeter,
+                        orderNumber: 'INVENTORY START',
+                        customerName: 'N/A',
+                        loggedBy: userEmail
+                    });
+
                     // SUCCESS PATH: Call the consolidated reset function
                     resetFormAndState();
 
@@ -1070,6 +1113,18 @@
                     };
 
                     await setDoc(fabricDocRef, updateData, { merge: true });
+
+                    // PUSH TO GOOGLE SHEET (TYPE: UPDATE/USE)
+                    pushToGoogleSheet({
+                        fabricName: fabric.name,
+                        type: 'USE',
+                        length: -amountUsed, // Log as negative for deduction
+                        unit: fabric.unit,
+                        cost: fabric.costPerMeter,
+                        orderNumber: transactionData.orderNumber,
+                        customerName: transactionData.customerName,
+                        loggedBy: userEmail
+                    });
 
                     // Clear update form states and switch back to viewing history
                     setUpdateFabricId(null);
