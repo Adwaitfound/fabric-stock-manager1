@@ -17,7 +17,7 @@
             padding: 1rem;
         }
 
-        /* UTILITY CLASSES */
+        /* UTILITY CLASSES (Hardcoded Tailwind) */
         .max-w-6xl {
             max-width: 72rem;
         }
@@ -620,12 +620,47 @@
         </div>
     </div>
 
+    <!-- ---------------------------------------------------- -->
+    <!-- FIREBASE AND REACT SCRIPTS -->
+    <!-- ---------------------------------------------------- -->
+
+    <!-- Firebase SDKs are loaded from CDN for Auth and Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Expose Firebase modules to the global window object for the Babel script to use
+        window.firebase = {
+            initializeApp, getAuth, signInAnonymously, onAuthStateChanged,
+            getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, query, serverTimestamp
+        };
+        window.FIREBASE_MODULES_LOADED = true;
+    </script>
+
     <!-- React and Babel for JSX in browser -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
+        // ----------------------------------------------------
+        // FIREBASE CONFIGURATION (INJECTED)
+        // ----------------------------------------------------
+        const FIREBASE_CONFIG = {
+            // UPDATED KEYS FOR NEW PROJECT: poshakh-fabric-final
+            apiKey: "AIzaSyA-iTofFK-Y1QZtmVs-yzpEWiEzyfBHuu4",
+            authDomain: "poshakh-fabric-final.firebaseapp.com",
+            projectId: "poshakh-fabric-final",
+            storageBucket: "poshakh-fabric-final.firebasestorage.app",
+            messagingSenderId: "372598853447",
+            appId: "1:372598853447:web:5d177d6bdc5066c02c0662"
+        };
+
+        // --- Firestore Collection Path ---
+        // Shared public path for all teams accessing the app
+        const COLLECTION_PATH = 'artifacts/poshakh-fabric-manager/public/data/fabrics';
+        const APP_ID = 'poshakh-fabric-manager'; // Used for the artifacts path
 
         // Icons (simplified from lucide-react for single-file HTML)
         const Plus = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
@@ -636,29 +671,8 @@
         const Camera = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>;
         const ImageIcon = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>;
 
-        // --- LOCAL STORAGE KEY ---
-        const LOCAL_STORAGE_KEY = "poshakh_fabric_measure_stock";
+        // --- CONSTANTS ---
         const MAX_FILE_SIZE_BYTES = 750 * 1024; // 750KB limit
-
-        // Helper to load data from localStorage
-        const loadFabricsFromLocalStorage = () => {
-            try {
-                const json = localStorage.getItem(LOCAL_STORAGE_KEY);
-                return json ? JSON.parse(json) : [];
-            } catch (e) {
-                console.error("Could not load from local storage:", e);
-                return [];
-            }
-        };
-
-        // Helper to save data to localStorage
-        const saveFabricsToLocalStorage = (data) => {
-            try {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-            } catch (e) {
-                console.error("Could not save to local storage:", e);
-            }
-        };
 
         // Helper function to generate a unique ID
         const generateId = () => Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -679,15 +693,16 @@
         };
 
         const App = () => {
-            // MOVE HOOK DESTRUCTURING INSIDE THE COMPONENT TO FIX THE HOOK CALL ERROR
             const { useState, useEffect, useMemo, useRef } = React;
 
+            const [db, setDb] = useState(null);
+            const [auth, setAuth] = useState(null);
             const [userId, setUserId] = useState(null);
             const [fabrics, setFabrics] = useState([]);
             const [loading, setLoading] = useState(true);
             const [error, setError] = useState(null);
             const [isUploading, setIsUploading] = useState(false);
-
+            const [userEmail, setUserEmail] = useState('Anonymous User');
 
             // Refs for hidden file inputs
             const cameraInputRef = useRef(null);
@@ -707,42 +722,102 @@
             const [updateAmountUsed, setUpdateAmountUsed] = useState('');
 
             // ------------------------------------
-            // 1. INITIAL LOAD (FROM LOCAL STORAGE)
+            // 1. FIREBASE INITIALIZATION & ANONYMOUS AUTH
             // ------------------------------------
 
             useEffect(() => {
-                // Load data on startup
-                const storedFabrics = loadFabricsFromLocalStorage();
+                // Ensure Firebase modules are loaded before initializing
+                if (!window.FIREBASE_MODULES_LOADED) {
+                    const timer = setTimeout(() => {
+                        if (!window.FIREBASE_MODULES_LOADED) {
+                            setError("Firebase modules failed to load.");
+                            setLoading(false);
+                        }
+                    }, 5000); // 5 second timeout
+                    return () => clearTimeout(timer);
+                }
 
-                // Calculate potential outfits during load
-                const processedFabrics = storedFabrics.map(f => {
-                    const currentLength = parseFloat(f.currentLength) || 0;
-                    const lengthRequiredPerOutfit = parseFloat(f.lengthRequiredPerOutfit) || 1;
-                    const potentialOutfits = Math.floor(currentLength / lengthRequiredPerOutfit);
-                    return { ...f, currentLength, lengthRequiredPerOutfit, potentialOutfits };
-                });
+                try {
+                    const { initializeApp, getFirestore, getAuth, onAuthStateChanged, signInAnonymously } = window.firebase;
 
-                setFabrics(processedFabrics);
+                    const app = initializeApp(FIREBASE_CONFIG);
+                    const firestore = getFirestore(app);
+                    const firebaseAuth = getAuth(app);
 
-                // Static user ID for Local Storage mode
-                setUserId('LOCAL-STORAGE-MODE');
-                setLoading(false);
+                    setDb(firestore);
+                    setAuth(firebaseAuth);
+
+                    // Anonymous Sign-in for shared access without login screen
+                    signInAnonymously(firebaseAuth).catch(err => {
+                        console.error("Anonymous Sign-in failed:", err);
+                        setError(`Authentication Failed: ${err.code}. Check Firebase Console for 'Anonymous' sign-in status.`);
+                        setLoading(false);
+                    });
+
+                    // Set up Auth State Listener
+                    const unsubscribeAuth = onAuthStateChanged(firebaseAuth, (user) => {
+                        if (user) {
+                            setUserId(user.uid);
+                            // Anonymous users don't have an email, so we use their UID
+                            setUserEmail(user.email || `Anon-${user.uid.substring(0, 8)}`);
+                            setLoading(false);
+                        } else {
+                            // Should not happen after successful signInAnonymously
+                            setUserId(null);
+                            setLoading(false);
+                        }
+                    });
+
+                    return () => unsubscribeAuth();
+                } catch (e) {
+                    console.error("Firebase Initialization Error:", e);
+                    setError("Could not initialize Firebase. Check API keys and network connection.");
+                    setLoading(false);
+                }
             }, []);
 
             // ------------------------------------
-            // 2. PERSISTENCE (SAVE TO LOCAL STORAGE)
+            // 2. DATA LISTENER (FIRESTORE)
             // ------------------------------------
 
-            // Whenever the fabrics state changes, save it to local storage.
             useEffect(() => {
-                if (!loading) {
-                    // Only save the necessary fields
-                    const dataToSave = fabrics.map(({ id, name, totalLength, currentLength, unit, lengthRequiredPerOutfit, imageUrl }) => ({
-                        id, name, totalLength, currentLength, unit, lengthRequiredPerOutfit, imageUrl
-                    }));
-                    saveFabricsToLocalStorage(dataToSave);
+                if (!db || !userId) return;
+
+                // Set up real-time listener for the shared collection
+                try {
+                    const fabricCollectionRef = collection(db, COLLECTION_PATH);
+                    const q = query(fabricCollectionRef);
+
+                    const unsubscribe = onSnapshot(q, (snapshot) => {
+                        const fabricList = snapshot.docs.map(doc => {
+                            const data = doc.data();
+                            const currentLength = parseFloat(data.currentLength) || 0;
+                            const lengthRequiredPerOutfit = parseFloat(data.lengthRequiredPerOutfit) || 1;
+                            const potentialOutfits = Math.floor(currentLength / lengthRequiredPerOutfit);
+
+                            return {
+                                id: doc.id,
+                                ...data,
+                                currentLength,
+                                lengthRequiredPerOutfit,
+                                potentialOutfits
+                            };
+                        });
+                        setFabrics(fabricList);
+                    }, (err) => {
+                        console.error("Firestore Listener Error:", err);
+                        setError("Failed to fetch real-time data from Firestore. Check security rules.");
+                    });
+
+                    return () => unsubscribe();
+                } catch (e) {
+                    console.error("Firestore Query Error:", e);
                 }
-            }, [fabrics, loading]);
+            }, [db, userId]);
+
+            // ------------------------------------
+            // 3. CRUD FUNCTIONS (FIRESTORE)
+            // ------------------------------------
 
             // Handler for file selection from input
             const handleFileChange = (e) => {
@@ -753,13 +828,9 @@
                 e.target.value = null; // Reset input field
             };
 
-
-            // ------------------------------------
-            // 3. CRUD FUNCTIONS (LOCAL STORAGE)
-            // ------------------------------------
-
             const handleAddFabric = async (e) => {
                 e.preventDefault();
+                if (!db || !userId) return;
 
                 const { name, totalLength, unit, lengthRequiredPerOutfit } = newFabric;
                 let imageUrlToStore = '';
@@ -779,56 +850,58 @@
 
                         if (sizeInBytes > MAX_FILE_SIZE_BYTES) {
                             setError(`Image is too large (${(sizeInBytes / 1024).toFixed(0)}KB). The limit is 750 KB.`);
-                            setIsUploading(false);
                             return;
                         }
                         imageUrlToStore = rawDataUrl;
                     } else {
-                        imageUrlToStore = `https://placehold.co/100x100/38bdf8/ffffff?text=${name.substring(0, 2).toUpperCase()}`;
+                        imageUrlToStore = `https://placehold.co/100x100/3b82f6/ffffff?text=${name.substring(0, 2).toUpperCase()}`;
                     }
 
-                    const docId = generateId();
                     const currentLengthFloat = parseFloat(totalLength);
                     const lengthRequiredPerOutfitFloat = parseFloat(lengthRequiredPerOutfit);
 
                     const newDoc = {
-                        id: docId,
                         name,
                         totalLength: currentLengthFloat,
                         currentLength: currentLengthFloat,
                         unit,
                         lengthRequiredPerOutfit: lengthRequiredPerOutfitFloat,
                         imageUrl: imageUrlToStore,
-                        potentialOutfits: Math.floor(currentLengthFloat / lengthRequiredPerOutfitFloat),
-                        updatedByEmail: 'Local User',
-                        updatedAt: new Date().toLocaleTimeString(),
+                        updatedByEmail: userEmail,
+                        updatedAt: window.firebase.serverTimestamp(),
+                        createdAt: window.firebase.serverTimestamp(),
                     };
 
-                    setFabrics(prevFabrics => [...prevFabrics, newDoc]);
+                    const fabricCollectionRef = collection(db, COLLECTION_PATH);
+                    await window.firebase.setDoc(window.firebase.doc(fabricCollectionRef), newDoc);
+
                     setNewFabric({ name: '', totalLength: '', unit: 'meters', lengthRequiredPerOutfit: '' });
                     setNewFabricImageFile(null);
                     setError(null);
                 } catch (e) {
                     console.error("Error adding document: ", e);
-                    setError("Failed to add new fabric stock to local storage.");
+                    setError(`Failed to add new fabric stock: ${e.message}. Check Firestore Security Rules!`);
                 } finally {
                     setIsUploading(false);
                 }
             };
 
             const handleDeleteFabric = async (id) => {
+                if (!db || !userId) return;
+
                 try {
-                    setFabrics(prevFabrics => prevFabrics.filter(f => f.id !== id));
+                    const docRef = doc(db, COLLECTION_PATH, id);
+                    await deleteDoc(docRef);
                     setError(null);
                 } catch (e) {
                     console.error("Error deleting document: ", e);
-                    setError("Failed to delete fabric entry.");
+                    setError(`Failed to delete fabric entry: ${e.message}. Check Security Rules.`);
                 }
             };
 
             const handleUpdateStock = async (e) => {
                 e.preventDefault();
-                if (!updateFabricId || !updateAmountUsed) return;
+                if (!db || !userId || !updateFabricId || !updateAmountUsed) return;
 
                 const amountUsed = parseFloat(updateAmountUsed);
                 if (isNaN(amountUsed) || amountUsed <= 0) {
@@ -836,10 +909,9 @@
                     return;
                 }
 
-                const fabricIndex = fabrics.findIndex(f => f.id === updateFabricId);
-                if (fabricIndex === -1) return;
+                const fabric = fabrics.find(f => f.id === updateFabricId);
+                if (!fabric) return;
 
-                const fabric = fabrics[fabricIndex];
                 const newCurrentLength = fabric.currentLength - amountUsed;
 
                 if (newCurrentLength < 0) {
@@ -847,25 +919,21 @@
                     return;
                 }
 
-                const newFabrics = [...fabrics];
-                const lengthRequired = fabric.lengthRequiredPerOutfit;
-
-                newFabrics[fabricIndex] = {
-                    ...fabric,
-                    currentLength: newCurrentLength,
-                    potentialOutfits: Math.floor(newCurrentLength / lengthRequired), // Recalculate
-                    updatedByEmail: 'Local User',
-                    updatedAt: new Date().toLocaleTimeString(),
-                };
-
                 try {
-                    setFabrics(newFabrics);
+                    const docRef = doc(db, COLLECTION_PATH, updateFabricId);
+
+                    await setDoc(docRef, {
+                        currentLength: newCurrentLength,
+                        updatedByEmail: userEmail,
+                        updatedAt: window.firebase.serverTimestamp(),
+                    }, { merge: true }); // Use merge to only update specified fields
+
                     setUpdateFabricId(null);
                     setUpdateAmountUsed('');
                     setError(null);
                 } catch (e) {
                     console.error("Error updating stock: ", e);
-                    setError("Failed to update fabric stock in local storage.");
+                    setError(`Failed to update fabric stock: ${e.message}. Check Security Rules.`);
                 }
             };
 
@@ -877,11 +945,11 @@
                 return fabrics.reduce((sum, f) => sum + f.potentialOutfits, 0);
             }, [fabrics]);
 
-            if (loading) {
+            if (loading || !userId) {
                 return (
                     <div className="flex items-center justify-center min-h-screen bg-gray-50">
                         <div className="spinner mr-3"></div>
-                        <div className="text-xl font-medium text-blue-500">Loading Application...</div>
+                        <div className="text-xl font-medium text-blue-500">Connecting to Shared Database...</div>
                     </div>
                 );
             }
@@ -891,20 +959,29 @@
                     <div className="p-8 bg-red-100 border-l-4 border-red-500 text-red-700 min-h-screen">
                         <p className="font-bold">Application Error</p>
                         <p>{error}</p>
-                        <p className="mt-2 text-sm text-gray-600">Storage Mode: Local Storage (No Sharing)</p>
+                        <p className="mt-2 text-sm text-gray-600">Storage Mode: Shared (Firebase). Check Console for details.</p>
                     </div>
                 );
             }
+
+            // Format Firestore Timestamp for display
+            const formatTimestamp = (timestamp) => {
+                if (timestamp && timestamp.toDate) {
+                    return timestamp.toDate().toLocaleTimeString();
+                }
+                return timestamp || 'N/A';
+            };
+
 
             return (
                 <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans">
                     <div className="max-w-6xl mx-auto">
                         <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Fabric Stock Manager</h1>
                         <p className="text-sm text-gray-500 mb-6">
-                            Storage ID: <span className="font-mono bg-gray-200 p-1 rounded-md text-xs">{userId}</span>
+                            User ID: <span className="font-mono bg-gray-200 p-1 rounded-md text-xs">{userEmail}</span>
                         </p>
-                        <p className="text-sm text-red-700 mb-6 bg-red-100 p-2 rounded-lg border border-red-300 font-semibold">
-                            This version uses **Local Storage**. Data is saved ONLY on this device and is **NOT SHARED** with your team.
+                        <p className="text-sm text-green-700 mb-6 bg-green-100 p-2 rounded-lg border border-red-300 font-semibold">
+                            This version is **Shared and Live**. All updates are synchronized in real-time on your Firebase project.
                         </p>
 
                         {/* Global Stats */}
@@ -1032,7 +1109,7 @@
                                         </p>
                                     )}
                                     <p className="mt-1 text-xs text-gray-500">
-                                        Images are stored in your browser's local storage as a Base64 string.
+                                        Images are stored in Firebase documents as a Base64 string (Max 750 KB).
                                     </p>
                                 </div>
 
@@ -1040,7 +1117,7 @@
                                 <div className="md:col-span-2 lg:col-span-3 pt-2 form-input-group">
                                     <button
                                         type="submit"
-                                        disabled={isUploading}
+                                        disabled={isUploading || !db}
                                         className={`w-full justify-center inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white transition duration-150 ${isUploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'}`}
                                     >
                                         {isUploading ? (
@@ -1087,7 +1164,7 @@
                                                 <p className="text-xs text-gray-400 mt-2">
                                                     Last updated by:
                                                     <span className="font-semibold text-gray-600 ml-1">{fabric.updatedByEmail || 'Local User'}</span>
-                                                    <span className="ml-2">({fabric.updatedAt || 'N/A'})</span>
+                                                    <span className="ml-2">({formatTimestamp(fabric.updatedAt) || 'N/A'})</span>
                                                 </p>
                                             </div>
                                         </div>
