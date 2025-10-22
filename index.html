@@ -178,7 +178,7 @@
         }
 
         .justify-center {
-            justify-center;
+            justify-content: center;
         }
 
         .justify-between {
@@ -700,8 +700,8 @@
         const APP_ID = 'poshakh-fabric-manager'; // Used for the artifacts path
 
         // --- GOOGLE SHEET WEBHOOK URL ---
-        // PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT URL HERE (From Step 1 of the last response)
-        const GOOGLE_SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzZ26t4N5xFMKov589d26UP_VWBsqKj2Idcow_t9KWBD_qvbzk5e694Ea780iQKSzHo/exec';
+        // PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT URL HERE
+        const GOOGLE_SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxxBvbO646zFs-jU5XVnuni-5Ko6tiqmZCef44vqsvp5qirq-QglzADs_PVjd6oHhe3/exec';
 
 
         // Icons (simplified from lucide-react for single-file HTML)
@@ -789,10 +789,11 @@
             // Form State
             const [newFabric, setNewFabric] = useState({
                 name: '',
+                websiteProductName: '', // NEW FIELD
                 totalLength: '',
                 unit: 'meters',
                 lengthRequiredPerOutfit: '',
-                costPerMeter: '', // NEW FIELD
+                costPerMeter: '',
             });
             const [newFabricImageFile, setNewFabricImageFile] = useState(null);
 
@@ -958,7 +959,7 @@
             };
 
             const resetFormAndState = () => {
-                setNewFabric({ name: '', totalLength: '', unit: 'meters', lengthRequiredPerOutfit: '', costPerMeter: '' }); // RESET NEW FIELD
+                setNewFabric({ name: '', websiteProductName: '', totalLength: '', unit: 'meters', lengthRequiredPerOutfit: '', costPerMeter: '' }); // RESET NEW FIELD
                 setNewFabricImageFile(null);
                 setOperationalError(null);
             }
@@ -967,11 +968,11 @@
                 e.preventDefault();
                 if (!db || !userId) return;
 
-                const { name, totalLength, unit, lengthRequiredPerOutfit, costPerMeter } = newFabric; // NEW FIELD DESTRUCTURED
+                const { name, websiteProductName, totalLength, unit, lengthRequiredPerOutfit, costPerMeter } = newFabric; // NEW FIELD DESTRUCTURED
                 let imageUrlToStore = '';
 
                 if (!name || !totalLength || !lengthRequiredPerOutfit || !costPerMeter) {
-                    setOperationalError("Please fill in ALL required fields (Name, Length, Required Length, and Cost per Meter).");
+                    setOperationalError("Please fill in ALL required fields (Fabric Name, Length, Required Length, and Cost per Meter).");
                     return;
                 }
 
@@ -1007,6 +1008,7 @@
 
                     const newDoc = {
                         name,
+                        websiteProductName, // NEW FIELD SAVED
                         totalLength: currentLengthFloat,
                         currentLength: currentLengthFloat,
                         unit,
@@ -1025,6 +1027,7 @@
                     // PUSH TO GOOGLE SHEET (TYPE: ADD)
                     pushToGoogleSheet({
                         fabricName: newDoc.name,
+                        websiteProductName: newDoc.websiteProductName, // NEW FIELD ADDED TO SHEET LOG
                         type: 'ADD',
                         length: newDoc.totalLength,
                         unit: newDoc.unit,
@@ -1042,7 +1045,7 @@
                     setOperationalError(`Failed to add new fabric stock: ${e.message}. Check Firestore Security Rules!`);
                 } finally {
                     // THE NEW, DEFINITIVE RESET: This runs after success OR failure
-                    setIsUploading(false);
+                    setTimeout(() => setIsUploading(false), 200); // 200ms delay to force UI reset
                 }
             };
 
@@ -1117,6 +1120,7 @@
                     // PUSH TO GOOGLE SHEET (TYPE: UPDATE/USE)
                     pushToGoogleSheet({
                         fabricName: fabric.name,
+                        websiteProductName: fabric.websiteProductName, // NEW FIELD ADDED TO SHEET LOG
                         type: 'USE',
                         length: -amountUsed, // Log as negative for deduction
                         unit: fabric.unit,
@@ -1252,9 +1256,9 @@
                             <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center"><Plus className="w-5 h-5 mr-2" /> Add New Fabric Stock</h2>
                             <form onSubmit={handleAddFabric} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-                                {/* 1. Fabric Name */}
+                                {/* 1. Fabric Name (Physical SKU) */}
                                 <div className="form-input-group">
-                                    <label className="block text-sm font-medium text-gray-700">Fabric Name</label>
+                                    <label className="block text-sm font-medium text-gray-700">Fabric Name (Internal SKU)</label>
                                     <input
                                         type="text"
                                         required
@@ -1264,7 +1268,19 @@
                                     />
                                 </div>
 
-                                {/* 2. Total Length */}
+                                {/* 2. Website Product Name (NEW INPUT) */}
+                                <div className="form-input-group">
+                                    <label className="block text-sm font-medium text-gray-700">Website Product Name</label>
+                                    <input
+                                        type="text"
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-blue-500 focus:border-border-blue-500"
+                                        value={newFabric.websiteProductName}
+                                        onChange={(e) => setNewFabric({ ...newFabric, websiteProductName: e.target.value })}
+                                        placeholder="e.g., 'Emerald Bloom Kurti'"
+                                    />
+                                </div>
+
+                                {/* 3. Total Length */}
                                 <div className="form-input-group">
                                     <label className="block text-sm font-medium text-gray-700">Total Length in Stock</label>
                                     <div className="mt-1 flex rounded-md shadow-sm">
@@ -1288,7 +1304,7 @@
                                     </div>
                                 </div>
 
-                                {/* 3. Cost Per Meter (NEW INPUT) */}
+                                {/* 4. Cost Per Meter */}
                                 <div className="form-input-group">
                                     <label className="block text-sm font-medium text-gray-700">Cost per Meter (₹)</label>
                                     <input
@@ -1303,7 +1319,7 @@
                                 </div>
 
 
-                                {/* 4. Length Required Per Outfit */}
+                                {/* 5. Length Required Per Outfit */}
                                 <div className="form-input-group">
                                     <label className="block text-sm font-medium text-gray-700">Length Required per Outfit</label>
                                     <input
@@ -1426,6 +1442,9 @@
                                                         <p className="flex items-center"><Ruler className="w-4 h-4 mr-2 text-ruby-red" /> Stock: {fabric.currentLength.toFixed(2)} {fabric.unit}</p>
                                                         <p className="flex items-center"><Shirt className="w-4 h-4 mr-2 text-light-gold" /> Req. per Outfit: {fabric.lengthRequiredPerOutfit.toFixed(2)} {fabric.unit}</p>
                                                         <p className="flex items-center text-green-600"><Tag className="w-4 h-4 mr-2" /> Current Cost: ₹ {fabric.totalCurrentCost.toFixed(2)}</p>
+                                                        {fabric.websiteProductName && (
+                                                            <p className="text-xs text-gray-500 italic">Product: {fabric.websiteProductName}</p>
+                                                        )}
                                                     </div>
                                                     <p className="text-xs text-gray-400 mt-2">
                                                         Last updated:
@@ -1525,9 +1544,9 @@
                                                         />
                                                     </div>
 
-                                                    {/* Row 3: Product Details */}
+                                                    {/* Row 3: Product Details (For Auditing) */}
                                                     <div className="form-input-group">
-                                                        <label className="block text-sm font-medium text-gray-700 flex items-center"><Tag className="w-4 h-4 mr-1" /> Product Name</label>
+                                                        <label className="block text-sm font-medium text-gray-700 flex items-center"><Tag className="w-4 h-4 mr-1" /> Product Name (Output)</label>
                                                         <input
                                                             type="text"
                                                             placeholder="Product (e.g., Blazer)"
