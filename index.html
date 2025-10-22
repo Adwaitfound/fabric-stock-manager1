@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fabric Stock Manager</title>
+    <title>Poshakh Fabric Stock Manager</title>
     <!-- REMOVED EXTERNAL TAILWIND SCRIPT -->
     <style>
         /* BASE STYLES & FONTS */
@@ -12,8 +12,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-            /* Creamy background */
+            background-color: #F5F5DC;
+            /* Updated: Clean Beige/Cream Background */
             min-height: 100vh;
             padding: 1rem;
         }
@@ -41,9 +41,10 @@
         }
 
         .bg-gray-50 {
-            background-color: #f8f9fa;
+            background-color: #F5F5DC;
         }
 
+        /* Updated: Use new background color */
         .font-sans {
             font-family: 'Inter', sans-serif;
         }
@@ -343,7 +344,7 @@
         }
 
 
-        /* TEXT AND COLORS (Poshakh Palette: Indigo/Navy and Gold/Mustard) */
+        /* TEXT AND COLORS (Poshakh Palette: Ruby Red/Maroon and Gold/Mustard) */
         .text-xs {
             font-size: 0.75rem;
         }
@@ -397,26 +398,47 @@
             color: #9ca3af;
         }
 
-        /* INDIGO/NAVY - PRIMARY COLOR */
-        .text-indigo-800 {
-            color: #1e3a8a;
+        /* RUBY RED / MAROON - PRIMARY BRAND COLOR */
+        .text-ruby-red {
+            color: #880000;
         }
 
-        /* Deep Indigo */
-        .bg-indigo-100 {
-            background-color: #e0e7ff;
+        /* Deep Ruby Red */
+        .bg-ruby-red-100 {
+            background-color: #ffeaea;
         }
 
-        .bg-indigo-800 {
-            color: #1e3a8a;
+        /* Very light red */
+        .bg-ruby-red-800 {
+            color: #880000;
         }
+
+        .text-dark-red {
+            color: #B40000;
+        }
+
+        /* LIGHT GOLD / AMBER - ACCENT COLOR */
+        .text-light-gold {
+            color: #B47C00;
+        }
+
+        /* Adjusted Gold */
+        .bg-light-gold-100 {
+            background-color: #fff8e1;
+        }
+
+        /* DEEP GREEN (for Inventory Value) */
+        .bg-deep-green {
+            background-color: #006400;
+        }
+
+        /* Darker Green for professionalism */
 
         /* ACCENT COLORS */
         .text-gold-600 {
             color: #D97706;
         }
 
-        /* Gold/Mustard */
         .bg-gold-100 {
             background-color: #fff9e6;
         }
@@ -429,7 +451,6 @@
             color: #4361ee;
         }
 
-        /* Retained for link/system use */
         .text-white {
             color: #ffffff;
         }
@@ -450,6 +471,11 @@
         .bg-red-500 {
             border-color: #ef4444;
         }
+
+        .text-red-600 {
+            color: #ef4444;
+        }
+
 
         /* NEUTRAL BACKGROUNDS */
         .bg-white {
@@ -502,23 +528,24 @@
             cursor: not-allowed;
         }
 
-        .focus\:ring-indigo-800:focus {
-            --tw-ring-color: #1e3a8a;
+        .focus\:ring-ruby-red:focus {
+            --tw-ring-color: #880000;
             ring-width: 2px;
         }
 
-        .focus\:border-indigo-800:focus {
-            border-color: #1e3a8a;
+        .focus\:border-ruby-red:focus {
+            border-color: #880000;
         }
 
-        /* Button Colors (Updated to Indigo and Gold) */
+        /* Button Colors (Updated to Ruby Red and Gold) */
         .btn-primary {
-            background-color: #1e3a8a;
+            background-color: #880000;
             color: white;
         }
 
+        /* Ruby Red Primary */
         .btn-primary:hover {
-            background-color: #3730a3;
+            background-color: #6a0000;
         }
 
         .btn-secondary {
@@ -526,6 +553,7 @@
             color: white;
         }
 
+        /* Gold Secondary */
         .btn-secondary:hover {
             background-color: #f59e0b;
         }
@@ -533,8 +561,8 @@
         /* Form Focus */
         .form-input-group input:focus,
         .form-input-group select:focus {
-            border-color: #1e3a8a;
-            box-shadow: 0 0 0 1px #1e3a8a;
+            border-color: #880000;
+            box-shadow: 0 0 0 1px #880000;
             outline: none;
         }
 
@@ -549,8 +577,8 @@
 
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #1e3a8a;
-            /* Indigo spinner */
+            border-left-color: #880000;
+            /* Ruby Red spinner */
             border-radius: 50%;
             width: 24px;
             height: 24px;
@@ -679,10 +707,9 @@
         const Shirt = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 4.5l-2.5 7h-11l-2.5-7"></path><path d="M22 10l-2 10"></path><path d="M2 10l2 10"></path><path d="M12 2l4 2.5v2.5H8V4.5z"></path></svg>;
         const Camera = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>;
         const ImageIcon = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>;
-        const DollarSign = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>;
+        const Tag = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 4.5l-2.5 7h-11l-2.5-7"></path><path d="M22 10l-2 10"></path><path d="M2 10l2 10"></path><path d="M12 2l4 2.5v2.5H8V4.5z"></path></svg>;
         const Hash = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>;
         const User = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
-        const Tag = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 4.5l-2.5 7h-11l-2.5-7"></path><path d="M22 10l-2 10"></path><path d="M2 10l2 10"></path><path d="M12 2l4 2.5v2.5H8V4.5z"></path></svg>;
         const Scissors = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>;
         const Clock = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
         const ChevronRight = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>;
@@ -861,9 +888,9 @@
                 }
 
                 try {
-                    // Path to the subcollection: fabrics/{fabricId}/history
-                    const historyCollectionPath = `${COLLECTION_PATH}/${historyFabricId}/history`;
-                    const historyCollectionRef = collection(db, historyCollectionPath);
+                    // FIX: Using doc(collectionRef, id) to ensure correct reference path
+                    const fabricDocRef = doc(collection(db, COLLECTION_PATH), historyFabricId);
+                    const historyCollectionRef = collection(fabricDocRef, 'history');
                     const q = query(historyCollectionRef);
 
                     const unsubscribeHistory = onSnapshot(q, (snapshot) => {
@@ -934,7 +961,7 @@
                     } else {
                         // Generate placeholder image
                         const placeholderText = name.substring(0, 2).toUpperCase() || 'FAB';
-                        imageUrlToStore = `https://placehold.co/100x100/1E3A8A/ffffff?text=${placeholderText}`;
+                        imageUrlToStore = `https://placehold.co/80x80/880000/ffffff?text=${placeholderText}`; // Use Ruby Red background
                     }
 
                     // --- Input Validation and Data Preparation ---
@@ -943,7 +970,7 @@
                     const costPerMeterFloat = parseFloat(costPerMeter) || 0; // NEW FIELD PARSED
 
                     if (currentLengthFloat <= 0 || lengthRequiredPerOutfitFloat <= 0 || costPerMeterFloat < 0) {
-                        setOperationalError("Length and Cost must be valid positive numbers.");
+                        setOperationalError("Length must be positive and Cost must be non-negative.");
                         return; // Exit here
                     }
 
@@ -1119,7 +1146,7 @@
             return (
                 <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans">
                     <div className="max-w-6xl mx-auto">
-                        <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Fabric Stock Manager</h1>
+                        <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Poshakh Fabric Stock Manager</h1>
                         <p className="text-sm text-gray-500 mb-6">
                             User ID: <span className="font-mono bg-gray-200 p-1 rounded-md text-xs">{userEmail}</span>
                         </p>
@@ -1138,7 +1165,7 @@
 
                         {/* Global Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                            {/* Total Fabrics Card (Indigo Theme) */}
+                            {/* Total Fabrics Card (Ruby Red Theme) */}
                             <div className="card btn-primary text-white p-6 rounded-xl shadow-lg flex items-center">
                                 <Gauge className="w-8 h-8 mr-4" />
 
@@ -1155,9 +1182,9 @@
                                     <p className="text-3xl font-bold">{totalPotentialOutfits}</p>
                                 </div>
                             </div>
-                            {/* Total Inventory Value Card (Green/Success Theme) */}
-                            <div className="card bg-green-600 text-white p-6 rounded-xl shadow-lg flex items-center col-span-1 md:col-span-2 lg:col-span-2">
-                                <DollarSign className="w-8 h-8 mr-4" />
+                            {/* Total Inventory Value Card (Deep Green Theme) */}
+                            <div className="card bg-deep-green text-white p-6 rounded-xl shadow-lg flex items-center col-span-1 md:col-span-2 lg:col-span-2">
+                                <Tag className="w-8 h-8 mr-4" />
                                 <div>
                                     <p className="text-sm opacity-80 uppercase font-semibold">Total Inventory Value (Cost)</p>
                                     <p className="text-3xl font-bold">₹ {totalInventoryValue}</p>
@@ -1253,7 +1280,7 @@
                                         <button
                                             type="button"
                                             onClick={() => cameraInputRef.current.click()}
-                                            className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-indigo-100 text-indigo-800 rounded-lg shadow-md hover:bg-indigo-200 transition duration-150"
+                                            className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-ruby-red-100 text-dark-red rounded-lg shadow-md hover:bg-ruby-red-100 transition duration-150"
                                         >
                                             <Camera className="w-6 h-6" />
                                             <span className="text-xs mt-1">Take Photo</span>
@@ -1271,7 +1298,7 @@
                                         <button
                                             type="button"
                                             onClick={() => galleryInputRef.current.click()}
-                                            className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-gold-100 text-indigo-800 rounded-lg shadow-md hover:bg-gray-200 transition duration-150"
+                                            className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-gold-100 text-dark-red rounded-lg shadow-md hover:bg-gray-200 transition duration-150"
                                         >
                                             <ImageIcon className="w-6 h-6" />
                                             <span className="text-xs mt-1">Upload from Gallery</span>
@@ -1334,16 +1361,16 @@
                                                     className="w-20 h-20 object-cover rounded-lg shadow-inner mr-4 border border-gray-200"
                                                     onError={(e) => {
                                                         e.target.onerror = null;
-                                                        e.target.src = `https://placehold.co/80x80/1E3A8A/ffffff?text=${(fabric.name || 'FAB').substring(0, 3).toUpperCase()}`;
+                                                        e.target.src = `https://placehold.co/80x80/880000/ffffff?text=${(fabric.name || 'FAB').substring(0, 3).toUpperCase()}`;
                                                     }}
                                                 />
                                                 {/* Fabric Details */}
                                                 <div>
                                                     <h3 className="text-xl font-bold text-gray-900">{fabric.name}</h3>
                                                     <div className="text-sm text-gray-600 space-y-1 mt-1">
-                                                        <p className="flex items-center"><Ruler className="w-4 h-4 mr-2 text-indigo-800" /> Stock: {fabric.currentLength.toFixed(2)} {fabric.unit}</p>
-                                                        <p className="flex items-center"><Shirt className="w-4 h-4 mr-2 text-gold-600" /> Req. per Outfit: {fabric.lengthRequiredPerOutfit.toFixed(2)} {fabric.unit}</p>
-                                                        <p className="flex items-center text-green-600"><DollarSign className="w-4 h-4 mr-2" /> Current Cost: ₹ {fabric.totalCurrentCost.toFixed(2)}</p>
+                                                        <p className="flex items-center"><Ruler className="w-4 h-4 mr-2 text-ruby-red" /> Stock: {fabric.currentLength.toFixed(2)} {fabric.unit}</p>
+                                                        <p className="flex items-center"><Shirt className="w-4 h-4 mr-2 text-light-gold" /> Req. per Outfit: {fabric.lengthRequiredPerOutfit.toFixed(2)} {fabric.unit}</p>
+                                                        <p className="flex items-center text-green-600"><Tag className="w-4 h-4 mr-2" /> Current Cost: ₹ {fabric.totalCurrentCost.toFixed(2)}</p>
                                                     </div>
                                                     <p className="text-xs text-gray-400 mt-2">
                                                         Last updated:
@@ -1358,13 +1385,13 @@
                                                 <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
                                                     <div>
                                                         <p className="text-sm font-medium text-gray-500">Remaining Stock</p>
-                                                        <p className="text-2xl font-extrabold text-indigo-800">
+                                                        <p className="text-2xl font-extrabold text-ruby-red">
                                                             {fabric.currentLength.toFixed(2)} {fabric.unit}
                                                         </p>
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-medium text-gray-500">Potential Outfits</p>
-                                                        <p className="text-2xl font-extrabold text-gold-600">
+                                                        <p className="text-2xl font-extrabold text-light-gold">
                                                             {fabric.potentialOutfits}
                                                         </p>
                                                     </div>
@@ -1374,7 +1401,7 @@
                                                 <div className="flex space-x-2">
                                                     <button
                                                         onClick={() => toggleHistory(fabric.id)}
-                                                        className={`flex-1 px-4 py-2 rounded-md font-medium transition duration-150 shadow-md flex items-center justify-center ${historyFabricId === fabric.id ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
+                                                        className={`flex-1 px-4 py-2 rounded-md font-medium transition duration-150 shadow-md flex items-center justify-center ${historyFabricId === fabric.id ? 'bg-ruby-red-800 text-white btn-primary' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
                                                     >
                                                         {historyFabricId === fabric.id ? 'Hide History' : 'View History'}
                                                     </button>
@@ -1496,7 +1523,7 @@
                                         {/* Transaction History Section */}
                                         {historyFabricId === fabric.id && (
                                             <div className="w-full pt-4 border-t border-gray-200 mt-4 bg-gray-50 rounded-lg p-3">
-                                                <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Clock className="w-5 h-5 mr-2 text-indigo-800" /> Usage History ({transactionHistory.length} logs)</h4>
+                                                <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Clock className="w-5 h-5 mr-2 text-ruby-red" /> Usage History ({transactionHistory.length} logs)</h4>
 
                                                 {transactionHistory.length === 0 ? (
                                                     <p className="text-sm text-gray-500 ml-2">No usage logs found for this fabric.</p>
@@ -1511,7 +1538,7 @@
                                                                     className="w-full flex justify-between items-center p-3 text-left hover:bg-gray-50 transition duration-100"
                                                                 >
                                                                     <div className="flex items-center text-sm font-semibold">
-                                                                        <span className="text-indigo-800 mr-3">{tx.orderNumber || 'N/A'}</span>
+                                                                        <span className="text-ruby-red mr-3">{tx.orderNumber || 'N/A'}</span>
                                                                         <span className="text-red-600 mr-3 font-extrabold">-{tx.amountUsed.toFixed(2)} {fabric.unit}</span>
                                                                         <span className="text-gray-500 font-normal flex items-center"><Clock className="w-4 h-4 mr-1 ml-2" /> {formatTimestamp(tx.usedAt)}</span>
                                                                     </div>
