@@ -343,6 +343,42 @@
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
         }
 
+        /* --- BACKGROUND IMAGE UTILITIES --- */
+        .relative {
+            position: relative;
+        }
+
+        .absolute {
+            position: absolute;
+        }
+
+        .inset-0 {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .bg-cover {
+            background-size: cover;
+        }
+
+        .bg-center {
+            background-position: center;
+        }
+
+        .opacity-10 {
+            opacity: 0.10;
+        }
+
+        .opacity-25 {
+            opacity: 0.25;
+        }
+
+        .opacity-90 {
+            opacity: 0.90;
+        }
+
 
         /* TEXT AND COLORS (Poshakh Palette: Ruby Red/Maroon and Gold/Mustard) */
         .text-xs {
@@ -433,6 +469,12 @@
         }
 
         /* Darker Green for professionalism */
+        /* SALES REVENUE OR SALES METRIC COLOR */
+        .bg-sales-blue {
+            background-color: #006AA0;
+        }
+
+        /* Professional Navy/Sales Blue */
 
         /* ACCENT COLORS */
         .text-gold-600 {
@@ -478,6 +520,7 @@
 
 
         /* NEUTRAL BACKGROUNDS */
+        /* Using standard white for better contrast */
         .bg-white {
             background-color: #ffffff;
         }
@@ -522,6 +565,12 @@
         .uppercase {
             text-transform: uppercase;
         }
+
+        .z-10 {
+            z-index: 10;
+        }
+
+        /* For layering over background image */
 
         /* INTERACTION & FORM */
         .cursor-not-allowed {
@@ -590,6 +639,43 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* NEW MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            /* High z-index */
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+            z-index: 1001;
+        }
+
 
         /* RESPONSIVENESS */
         @media (min-width: 768px) {
@@ -719,10 +805,13 @@
         const Clock = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
         const ChevronRight = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>;
         const ChevronDown = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>;
+        const X = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
 
 
         // --- CONSTANTS ---
         const MAX_FILE_SIZE_BYTES = 750 * 1024; // 750KB limit
+        const AVERAGE_SELLING_PRICE = 1500; // INR, based on poshakhfabrics.com average price of ~₹1,500
+        const RUPEE_ICON = '₹'; // Indian Rupee Symbol
 
         // Helper function to generate a unique ID
         const generateId = () => Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -781,6 +870,9 @@
             const [operationalError, setOperationalError] = useState(null); // For form/CRUD failures
             const [isUploading, setIsUploading] = useState(false);
             const [userEmail, setUserEmail] = useState('Anonymous User');
+
+            // NEW STATE FOR IMAGE MODAL
+            const [selectedImageUrl, setSelectedImageUrl] = useState(null);
 
             // Refs for hidden file inputs
             const cameraInputRef = useRef(null);
@@ -964,21 +1056,36 @@
                 setOperationalError(null);
             }
 
-            const handleAddFabric = async (e) => {
+            // Wrapper function for the core logic to force state reset
+            const handleAddFabricWrapper = async (e) => {
                 e.preventDefault();
-                if (!db || !userId) return;
-
-                const { name, websiteProductName, totalLength, unit, lengthRequiredPerOutfit, costPerMeter } = newFabric; // NEW FIELD DESTRUCTURED
-                let imageUrlToStore = '';
-
-                if (!name || !totalLength || !lengthRequiredPerOutfit || !costPerMeter) {
-                    setOperationalError("Please fill in ALL required fields (Fabric Name, Length, Required Length, and Cost per Meter).");
-                    return;
-                }
 
                 // Clear any previous error before trying again
                 setOperationalError(null);
                 setIsUploading(true); // START UPLOADING
+
+                try {
+                    await handleAddFabric(e);
+                } catch (error) {
+                    // This block catches any unhandled errors from handleAddFabric
+                    console.error("Critical error in add fabric wrapper:", error);
+                } finally {
+                    // Guarantee reset of the spinner after the function completes
+                    setTimeout(() => setIsUploading(false), 200);
+                }
+            }
+
+
+            const handleAddFabric = async (e) => {
+                if (!db || !userId) throw new Error("Database not initialized."); // Throw error to be caught by wrapper
+
+                const { name, websiteProductName, totalLength, unit, lengthRequiredPerOutfit, costPerMeter } = newFabric;
+                let imageUrlToStore = '';
+
+                if (!name || !totalLength || !lengthRequiredPerOutfit || !costPerMeter) {
+                    setOperationalError("Please fill in ALL required fields (Fabric Name, Length, Required Length, and Cost per Meter).");
+                    return; // Exit without throwing
+                }
 
                 try {
                     if (newFabricImageFile) {
@@ -991,29 +1098,28 @@
                         }
                         imageUrlToStore = rawDataUrl;
                     } else {
-                        // Generate placeholder image
                         const placeholderText = name.substring(0, 2).toUpperCase() || 'FAB';
-                        imageUrlToStore = `https://placehold.co/80x80/880000/ffffff?text=${placeholderText}`; // Use Ruby Red background
+                        imageUrlToStore = `https://placehold.co/80x80/880000/ffffff?text=${placeholderText}`;
                     }
 
                     // --- Input Validation and Data Preparation ---
                     const currentLengthFloat = parseFloat(totalLength) || 0;
                     const lengthRequiredPerOutfitFloat = parseFloat(lengthRequiredPerOutfit) || 0;
-                    const costPerMeterFloat = parseFloat(costPerMeter) || 0; // NEW FIELD PARSED
+                    const costPerMeterFloat = parseFloat(costPerMeter) || 0;
 
                     if (currentLengthFloat <= 0 || lengthRequiredPerOutfitFloat <= 0 || costPerMeterFloat < 0) {
                         setOperationalError("Length must be positive and Cost must be non-negative.");
-                        return; // Exit here
+                        return;
                     }
 
                     const newDoc = {
                         name,
-                        websiteProductName, // NEW FIELD SAVED
+                        websiteProductName,
                         totalLength: currentLengthFloat,
                         currentLength: currentLengthFloat,
                         unit,
                         lengthRequiredPerOutfit: lengthRequiredPerOutfitFloat,
-                        costPerMeter: costPerMeterFloat, // NEW FIELD SAVED
+                        costPerMeter: costPerMeterFloat,
                         imageUrl: imageUrlToStore,
                         updatedByEmail: userEmail,
                         updatedAt: serverTimestamp(),
@@ -1021,13 +1127,14 @@
                     };
 
                     const fabricCollectionRef = collection(db, COLLECTION_PATH);
+
                     // DATABASE COMMIT
                     await setDoc(doc(fabricCollectionRef), newDoc);
 
                     // PUSH TO GOOGLE SHEET (TYPE: ADD)
                     pushToGoogleSheet({
                         fabricName: newDoc.name,
-                        websiteProductName: newDoc.websiteProductName, // NEW FIELD ADDED TO SHEET LOG
+                        websiteProductName: newDoc.websiteProductName,
                         type: 'ADD',
                         length: newDoc.totalLength,
                         unit: newDoc.unit,
@@ -1043,9 +1150,7 @@
                 } catch (e) {
                     console.error("Error adding document: ", e);
                     setOperationalError(`Failed to add new fabric stock: ${e.message}. Check Firestore Security Rules!`);
-                } finally {
-                    // THE NEW, DEFINITIVE RESET: This runs after success OR failure
-                    setTimeout(() => setIsUploading(false), 200); // 200ms delay to force UI reset
+                    // IMPORTANT: Do NOT throw here, let the wrapper's finally block handle the spinner reset
                 }
             };
 
@@ -1170,6 +1275,10 @@
                 return total.toFixed(2);
             }, [fabrics]);
 
+            const totalPotentialRevenue = useMemo(() => {
+                return (totalPotentialOutfits * AVERAGE_SELLING_PRICE).toFixed(2);
+            }, [totalPotentialOutfits]);
+
             // Format Firestore Timestamp for display
             const formatTimestamp = (timestamp, timeOnly = false) => {
                 if (timestamp && timestamp.toDate) {
@@ -1204,13 +1313,28 @@
 
             return (
                 <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans">
+                    {selectedImageUrl && (
+                        <div className="modal-overlay" onClick={() => setSelectedImageUrl(null)}>
+                            <button className="modal-close-btn" onClick={() => setSelectedImageUrl(null)} title="Close">
+                                <X className="w-6 h-6" />
+                            </button>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                                <img
+                                    src={selectedImageUrl}
+                                    alt="Enlarged Fabric Image"
+                                    style={{
+                                        maxWidth: '100%',
+                                        maxHeight: '100vh',
+                                        objectFit: 'contain'
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    )}
                     <div className="max-w-6xl mx-auto">
                         <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Poshakh Fabric Stock Manager</h1>
                         <p className="text-sm text-gray-500 mb-6">
                             User ID: <span className="font-mono bg-gray-200 p-1 rounded-md text-xs">{userEmail}</span>
-                        </p>
-                        <p className="text-sm text-green-700 mb-6 bg-green-100 p-2 rounded-lg border border-red-300 font-semibold">
-                            This version is **Shared and Live**. All updates are synchronized in real-time on your Firebase project.
                         </p>
 
                         {/* Operational Error Display */}
@@ -1224,6 +1348,7 @@
 
                         {/* Global Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
                             {/* Total Fabrics Card (Ruby Red Theme) */}
                             <div className="card btn-primary text-white p-6 rounded-xl shadow-lg flex items-center">
                                 <Gauge className="w-8 h-8 mr-4" />
@@ -1233,20 +1358,31 @@
                                     <p className="text-3xl font-bold">{fabrics.length}</p>
                                 </div>
                             </div>
+
                             {/* Total Potential Outfits Card (Gold/Mustard Theme) */}
-                            <div className="card btn-secondary text-white p-6 rounded-xl shadow-lg flex items-center">
+                            <div className="card btn-secondary text-gray-900 p-6 rounded-xl shadow-lg flex items-center">
                                 <Shirt className="w-8 h-8 mr-4" />
                                 <div>
                                     <p className="text-sm opacity-80 uppercase font-semibold">Total Potential Outfits</p>
                                     <p className="text-3xl font-bold">{totalPotentialOutfits}</p>
                                 </div>
                             </div>
-                            {/* Total Inventory Value Card (Deep Green Theme) */}
-                            <div className="card bg-deep-green text-white p-6 rounded-xl shadow-lg flex items-center col-span-1 md:col-span-2 lg:col-span-2">
+
+                            {/* Total Inventory Value Card (Deep Green Theme - Cost to You) */}
+                            <div className="card bg-deep-green text-white p-6 rounded-xl shadow-lg flex items-center">
                                 <Tag className="w-8 h-8 mr-4" />
                                 <div>
                                     <p className="text-sm opacity-80 uppercase font-semibold">Total Inventory Value (Cost)</p>
                                     <p className="text-3xl font-bold">₹ {totalInventoryValue}</p>
+                                </div>
+                            </div>
+
+                            {/* Total Potential Revenue Card (Sales Blue - Revenue Expectation) */}
+                            <div className="card bg-sales-blue text-white p-6 rounded-xl shadow-lg flex items-center">
+                                <Tag className="w-8 h-8 mr-4" />
+                                <div>
+                                    <p className="text-sm opacity-80 uppercase font-semibold">Total Potential Revenue</p>
+                                    <p className="text-3xl font-bold">₹ {totalPotentialRevenue}</p>
                                 </div>
                             </div>
                         </div>
@@ -1254,7 +1390,7 @@
                         {/* Add New Fabric Section */}
                         <div className="card bg-white p-6 rounded-xl shadow-lg mb-8">
                             <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center"><Plus className="w-5 h-5 mr-2" /> Add New Fabric Stock</h2>
-                            <form onSubmit={handleAddFabric} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <form onSubmit={handleAddFabricWrapper} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                                 {/* 1. Fabric Name (Physical SKU) */}
                                 <div className="form-input-group">
@@ -1423,55 +1559,69 @@
                                     <div key={fabric.id} className="card bg-white p-5 rounded-xl shadow-md flex flex-col space-y-4">
 
                                         {/* Main Item Row */}
-                                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                                            <div className="flex items-center mb-4 md:mb-0 w-full md:w-3/5">
-                                                {/* Image Placeholder/Display */}
-                                                <img
-                                                    src={fabric.imageUrl}
-                                                    alt={fabric.name}
-                                                    className="w-20 h-20 object-cover rounded-lg shadow-inner mr-4 border border-gray-200"
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src = `https://placehold.co/80x80/880000/ffffff?text=${(fabric.name || 'FAB').substring(0, 3).toUpperCase()}`;
-                                                    }}
-                                                />
-                                                {/* Fabric Details */}
-                                                <div>
-                                                    <h3 className="text-xl font-bold text-gray-900">{fabric.name}</h3>
-                                                    <div className="text-sm text-gray-600 space-y-1 mt-1">
-                                                        <p className="flex items-center"><Ruler className="w-4 h-4 mr-2 text-ruby-red" /> Stock: {fabric.currentLength.toFixed(2)} {fabric.unit}</p>
-                                                        <p className="flex items-center"><Shirt className="w-4 h-4 mr-2 text-light-gold" /> Req. per Outfit: {fabric.lengthRequiredPerOutfit.toFixed(2)} {fabric.unit}</p>
-                                                        <p className="flex items-center text-green-600"><Tag className="w-4 h-4 mr-2" /> Current Cost: ₹ {fabric.totalCurrentCost.toFixed(2)}</p>
-                                                        {fabric.websiteProductName && (
-                                                            <p className="text-xs text-gray-500 italic">Product: {fabric.websiteProductName}</p>
-                                                        )}
+                                        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center w-full h-full space-y-4 md:space-y-0">
+
+                                            {/* FABRIC DETAILS SECTION (Left 60%) */}
+                                            <div className="w-full md:w-3/5 p-0">
+                                                <div className="flex items-start space-x-4">
+
+                                                    {/* Image Button for Zoom */}
+                                                    <button
+                                                        onClick={() => setSelectedImageUrl(fabric.imageUrl)}
+                                                        className="cursor-pointer flex-shrink-0 mt-1"
+                                                    >
+                                                        <img
+                                                            src={fabric.imageUrl}
+                                                            alt={fabric.name}
+                                                            className="w-20 h-20 object-cover rounded-lg shadow-lg border border-gray-300 hover:opacity-90 transition duration-150"
+                                                            onError={(e) => {
+                                                                e.target.onerror = null;
+                                                                e.target.src = `https://placehold.co/80x80/880000/ffffff?text=${(fabric.name || 'FAB').substring(0, 3).toUpperCase()}`;
+                                                            }}
+                                                        />
+                                                    </button>
+
+                                                    {/* Fabric Details (Contrasting White Box) */}
+                                                    <div className="bg-white p-3 rounded-lg shadow-md flex-1">
+                                                        <h3 className="text-xl font-bold text-gray-900 mb-1">{fabric.name}</h3>
+                                                        <div className="text-sm text-gray-600 space-y-1">
+                                                            <p className="flex items-center"><Ruler className="w-4 h-4 mr-2 text-ruby-red" /> Stock: {fabric.currentLength.toFixed(2)} {fabric.unit}</p>
+                                                            <p className="flex items-center"><Shirt className="w-4 h-4 mr-2 text-light-gold" /> Req. per Outfit: {fabric.lengthRequiredPerOutfit.toFixed(2)} {fabric.unit}</p>
+                                                            <p className="flex items-center text-green-600"><Tag className="w-4 h-4 mr-2" /> Current Cost: ₹ {fabric.totalCurrentCost.toFixed(2)}</p>
+                                                            {fabric.websiteProductName && (
+                                                                <p className="text-xs text-gray-500 italic">Product: {fabric.websiteProductName}</p>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-xs text-gray-400 mt-2">
+                                                            Last updated:
+                                                            <span className="font-semibold text-gray-600 ml-1">{formatTimestamp(fabric.updatedAt)}</span> by
+                                                            <span className="font-semibold text-gray-600 ml-1">{fabric.updatedByEmail || 'N/A'}</span>
+                                                        </p>
                                                     </div>
-                                                    <p className="text-xs text-gray-400 mt-2">
-                                                        Last updated:
-                                                        <span className="font-semibold text-gray-600 ml-1">{formatTimestamp(fabric.updatedAt)}</span> by
-                                                        <span className="font-semibold text-gray-600 ml-1">{fabric.updatedByEmail || 'N/A'}</span>
-                                                    </p>
                                                 </div>
                                             </div>
 
-                                            {/* Stock & Calculation */}
-                                            <div className="w-full md:w-2/5 flex flex-col space-y-3">
-                                                <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-gray-500">Remaining Stock</p>
-                                                        <p className="text-2xl font-extrabold text-ruby-red">
-                                                            {fabric.currentLength.toFixed(2)} {fabric.unit}
-                                                        </p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-medium text-gray-500">Potential Outfits</p>
-                                                        <p className="text-2xl font-extrabold text-light-gold">
-                                                            {fabric.potentialOutfits}
-                                                        </p>
+                                            {/* Stock & Calculation (Right 40%) */}
+                                            <div className="w-full md:w-2/5 flex flex-col space-y-3 mt-4 md:mt-0">
+                                                {/* 1. Stats Box (Contrasting White Box) */}
+                                                <div className="bg-white p-3 rounded-lg shadow-md">
+                                                    <div className="flex justify-between items-center bg-gray-100 p-3 rounded-lg">
+                                                        <div>
+                                                            <p className="text-sm font-medium text-gray-500">Remaining Stock</p>
+                                                            <p className="text-2xl font-extrabold text-ruby-red">
+                                                                {fabric.currentLength.toFixed(2)} {fabric.unit}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-medium text-gray-500">Potential Outfits</p>
+                                                            <p className="text-2xl font-extrabold text-light-gold">
+                                                                {fabric.potentialOutfits}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
 
-                                                {/* Action Buttons */}
+                                                {/* 2. Action Buttons */}
                                                 <div className="flex space-x-2">
                                                     <button
                                                         onClick={() => toggleHistory(fabric.id)}
@@ -1502,136 +1652,138 @@
                                         </div>
 
                                         {/* History View or Update Form Container */}
-                                        {updateFabricId === fabric.id && (
-                                            <div className="w-full pt-4 border-t border-gray-200 mt-4">
-                                                <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Scissors className="w-5 h-5 mr-2 text-gold-600" /> Log Stock Reduction</h4>
-                                                <form onSubmit={handleUpdateStock} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {(updateFabricId === fabric.id || historyFabricId === fabric.id) && (
+                                            <div className="w-full pt-4 border-t border-gray-200 mt-4 relative z-10">
+                                                {updateFabricId === fabric.id && (
+                                                    <div className="bg-white p-4 rounded-lg shadow-inner">
+                                                        <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Scissors className="w-5 h-5 mr-2 text-gold-600" /> Log Stock Reduction</h4>
+                                                        <form onSubmit={handleUpdateStock} className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                                                    {/* Row 1: Amount Used */}
-                                                    <div className="md:col-span-2 form-input-group">
-                                                        <label className="block text-sm font-medium text-gray-700">Amount Used ({fabric.unit})</label>
-                                                        <input
-                                                            type="number"
-                                                            step="0.01"
-                                                            min="0.01"
-                                                            required
-                                                            placeholder={`Enter amount used (e.g., ${fabric.lengthRequiredPerOutfit.toFixed(2)})`}
-                                                            className="w-full p-2 border border-yellow-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
-                                                            value={updateAmountUsed}
-                                                            onChange={(e) => setUpdateAmountUsed(e.target.value)}
-                                                        />
-                                                    </div>
+                                                            {/* Row 1: Amount Used */}
+                                                            <div className="md:col-span-2 form-input-group">
+                                                                <label className="block text-sm font-medium text-gray-700">Amount Used ({fabric.unit})</label>
+                                                                <input
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    min="0.01"
+                                                                    required
+                                                                    placeholder={`Enter amount used (e.g., ${fabric.lengthRequiredPerOutfit.toFixed(2)})`}
+                                                                    className="w-full p-2 border border-yellow-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
+                                                                    value={updateAmountUsed}
+                                                                    onChange={(e) => setUpdateAmountUsed(e.target.value)}
+                                                                />
+                                                            </div>
 
-                                                    {/* Row 2: Order Details */}
-                                                    <div className="form-input-group">
-                                                        <label className="block text-sm font-medium text-gray-700 flex items-center"><Hash className="w-4 h-4 mr-1" /> Order Number</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Order # (e.g., 1002)"
-                                                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                                                            value={updateOrderNumber}
-                                                            onChange={(e) => setUpdateOrderNumber(e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="form-input-group">
-                                                        <label className="block text-sm font-medium text-gray-700 flex items-center"><User className="w-4 h-4 mr-1" /> Customer Name</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Customer Name"
-                                                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                                                            value={updateCustomerName}
-                                                            onChange={(e) => setUpdateCustomerName(e.target.value)}
-                                                        />
-                                                    </div>
+                                                            {/* Row 2: Order Details */}
+                                                            <div className="form-input-group">
+                                                                <label className="block text-sm font-medium text-gray-700 flex items-center"><Hash className="w-4 h-4 mr-1" /> Order Number</label>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Order # (e.g., 1002)"
+                                                                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                                                                    value={updateOrderNumber}
+                                                                    onChange={(e) => setUpdateOrderNumber(e.target.value)}
+                                                                />
+                                                            </div>
+                                                            <div className="form-input-group">
+                                                                <label className="block text-sm font-medium text-gray-700 flex items-center"><User className="w-4 h-4 mr-1" /> Customer Name</label>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Customer Name"
+                                                                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                                                                    value={updateCustomerName}
+                                                                    onChange={(e) => setUpdateCustomerName(e.target.value)}
+                                                                />
+                                                            </div>
 
-                                                    {/* Row 3: Product Details (For Auditing) */}
-                                                    <div className="form-input-group">
-                                                        <label className="block text-sm font-medium text-gray-700 flex items-center"><Tag className="w-4 h-4 mr-1" /> Product Name (Output)</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Product (e.g., Blazer)"
-                                                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                                                            value={updateProductName}
-                                                            onChange={(e) => setUpdateProductName(e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="form-input-group">
-                                                        <label className="block text-sm font-medium text-gray-700">Size/Notes</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Size (e.g., L) or specific notes"
-                                                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                                                            value={updateSize}
-                                                            onChange={(e) => setUpdateSize(e.target.value)}
-                                                        />
-                                                    </div>
+                                                            {/* Row 3: Product Details (For Auditing) */}
+                                                            <div className="form-input-group">
+                                                                <label className="block text-sm font-medium text-gray-700 flex items-center"><Tag className="w-4 h-4 mr-1" /> Product Name (Output)</label>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Product (e.g., Blazer)"
+                                                                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                                                                    value={updateProductName}
+                                                                    onChange={(e) => setUpdateProductName(e.target.value)}
+                                                                />
+                                                            </div>
+                                                            <div className="form-input-group">
+                                                                <label className="block text-sm font-medium text-gray-700">Size/Notes</label>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Size (e.g., L) or specific notes"
+                                                                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                                                                    value={updateSize}
+                                                                    onChange={(e) => setUpdateSize(e.target.value)}
+                                                                />
+                                                            </div>
 
-                                                    {/* Action Buttons */}
-                                                    <div className="md:col-span-2 flex space-x-2 mt-3">
-                                                        <button
-                                                            type="submit"
-                                                            className="flex-1 btn-secondary text-gray-900 px-4 py-2 rounded-md font-medium transition duration-150"
-                                                        >
-                                                            Update Stock
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setUpdateFabricId(null);
-                                                                setUpdateAmountUsed('');
-                                                                setUpdateOrderNumber('');
-                                                                setUpdateProductName('');
-                                                                setUpdateSize('');
-                                                                setUpdateCustomerName('');
-                                                                setOperationalError(null);
-                                                            }}
-                                                            className="bg-gray-300 text-gray-800 px-3 py-2 rounded-md font-medium hover:bg-gray-400 transition duration-150"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        )}
-
-                                        {/* Transaction History Section */}
-                                        {historyFabricId === fabric.id && (
-                                            <div className="w-full pt-4 border-t border-gray-200 mt-4 bg-gray-50 rounded-lg p-3">
-                                                <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Clock className="w-5 h-5 mr-2 text-ruby-red" /> Usage History ({transactionHistory.length} logs)</h4>
-
-                                                {transactionHistory.length === 0 ? (
-                                                    <p className="text-sm text-gray-500 ml-2">No usage logs found for this fabric.</p>
-                                                ) : (
-                                                    <div className="space-y-2">
-                                                        {transactionHistory.map((tx) => (
-                                                            <div key={tx.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                                                {/* Summary Bar */}
+                                                            {/* Action Buttons */}
+                                                            <div className="md:col-span-2 flex space-x-2 mt-3">
+                                                                <button
+                                                                    type="submit"
+                                                                    className="flex-1 btn-secondary text-gray-900 px-4 py-2 rounded-md font-medium transition duration-150"
+                                                                >
+                                                                    Update Stock
+                                                                </button>
                                                                 <button
                                                                     type="button"
-                                                                    onClick={() => toggleTransactionDetails(tx.id)}
-                                                                    className="w-full flex justify-between items-center p-3 text-left hover:bg-gray-50 transition duration-100"
+                                                                    onClick={() => {
+                                                                        setUpdateFabricId(null);
+                                                                        setUpdateAmountUsed('');
+                                                                        setUpdateOrderNumber('');
+                                                                        setUpdateProductName('');
+                                                                        setUpdateSize('');
+                                                                        setUpdateCustomerName('');
+                                                                        setOperationalError(null);
+                                                                    }}
+                                                                    className="bg-gray-300 text-gray-800 px-3 py-2 rounded-md font-medium hover:bg-gray-400 transition duration-150"
                                                                 >
-                                                                    <div className="flex items-center text-sm font-semibold">
-                                                                        <span className="text-ruby-red mr-3">{tx.orderNumber || 'N/A'}</span>
-                                                                        <span className="text-red-600 mr-3 font-extrabold">-{tx.amountUsed.toFixed(2)} {fabric.unit}</span>
-                                                                        <span className="text-gray-500 font-normal flex items-center"><Clock className="w-4 h-4 mr-1 ml-2" /> {formatTimestamp(tx.usedAt)}</span>
-                                                                    </div>
-                                                                    {expandedTransactionId === tx.id ? <ChevronDown className="w-5 h-5 text-gray-600" /> : <ChevronRight className="w-5 h-5 text-gray-600" />}
+                                                                    Cancel
                                                                 </button>
-
-                                                                {/* Expanded Details */}
-                                                                {expandedTransactionId === tx.id && (
-                                                                    <div className="p-3 pt-0 border-t border-gray-200 bg-gray-50 text-xs space-y-1">
-                                                                        <p><span className="font-semibold text-gray-700">Product:</span> {tx.productName || 'N/A'} (Size: {tx.size || 'N/A'})</p>
-                                                                        <p><span className="font-semibold text-gray-700">Customer:</span> {tx.customerName || 'N/A'}</p>
-                                                                        <p><span className="font-semibold text-gray-700">Logged By:</span> {tx.usedByEmail || 'N/A'} at {formatTimestamp(tx.usedAt, true)}</p>
-                                                                    </div>
-                                                                )}
                                                             </div>
-                                                        ))}
+                                                        </form>
                                                     </div>
                                                 )}
 
+                                                {historyFabricId === fabric.id && (
+                                                    <div className="bg-white p-4 rounded-lg shadow-inner">
+                                                        <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Clock className="w-5 h-5 mr-2 text-ruby-red" /> Usage History ({transactionHistory.length} logs)</h4>
+
+                                                        {transactionHistory.length === 0 ? (
+                                                            <p className="text-sm text-gray-500 ml-2">No usage logs found for this fabric.</p>
+                                                        ) : (
+                                                            <div className="space-y-2">
+                                                                {transactionHistory.map((tx) => (
+                                                                    <div key={tx.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                                                        {/* Summary Bar */}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => toggleTransactionDetails(tx.id)}
+                                                                            className="w-full flex justify-between items-center p-3 text-left hover:bg-gray-50 transition duration-100"
+                                                                        >
+                                                                            <div className="flex items-center text-sm font-semibold">
+                                                                                <span className="text-ruby-red mr-3">{tx.orderNumber || 'N/A'}</span>
+                                                                                <span className="text-red-600 mr-3 font-extrabold">-{tx.amountUsed.toFixed(2)} {fabric.unit}</span>
+                                                                                <span className="text-gray-500 font-normal flex items-center"><Clock className="w-4 h-4 mr-1 ml-2" /> {formatTimestamp(tx.usedAt)}</span>
+                                                                            </div>
+                                                                            {expandedTransactionId === tx.id ? <ChevronDown className="w-5 h-5 text-gray-600" /> : <ChevronRight className="w-5 h-5 text-gray-600" />}
+                                                                        </button>
+
+                                                                        {/* Expanded Details */}
+                                                                        {expandedTransactionId === tx.id && (
+                                                                            <div className="p-3 pt-0 border-t border-gray-200 bg-gray-50 text-xs space-y-1">
+                                                                                <p><span className="font-semibold text-gray-700">Product:</span> {tx.productName || 'N/A'} (Size: {tx.size || 'N/A'})</p>
+                                                                                <p><span className="font-semibold text-gray-700">Customer:</span> {tx.customerName || 'N/A'}</p>
+                                                                                <p><span className="font-semibold text-gray-700">Logged By:</span> {tx.usedByEmail || 'N/A'} at {formatTimestamp(tx.usedAt, true)}</p>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
 
