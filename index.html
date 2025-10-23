@@ -463,18 +463,22 @@
             background-color: #fff8e1;
         }
 
-        /* DEEP GREEN (for Inventory Value) */
-        .bg-deep-green {
+        /* DEEP GREEN - NEW STANDARD COLOR */
+        .bg-standard-green {
             background-color: #006400;
         }
 
         /* Darker Green for professionalism */
-        /* SALES REVENUE OR SALES METRIC COLOR */
-        .bg-sales-blue {
-            background-color: #006AA0;
+        .text-standard-green {
+            color: #006400;
         }
 
-        /* Professional Navy/Sales Blue */
+        /* DARK GRAY/BLUE - HIGH CONTRAST */
+        .bg-dark-contrast {
+            background-color: #334155;
+        }
+
+        /* NEW: For Total Inventory Value contrast */
 
         /* ACCENT COLORS */
         .text-gold-600 {
@@ -516,6 +520,21 @@
 
         .text-red-600 {
             color: #ef4444;
+        }
+
+        /* Global Stats Theme Colors (Standard Green + White Text) */
+        .bg-metric {
+            background-color: #006400;
+        }
+
+        /* Deep Green */
+        .text-metric {
+            color: #ffffff;
+        }
+
+        .icon-metric {
+            color: #ffffff;
+            opacity: 0.8;
         }
 
 
@@ -571,6 +590,31 @@
         }
 
         /* For layering over background image */
+
+        /* NEW TAB STYLES */
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 0.5rem 0.5rem 0 0;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .tab-active {
+            color: #880000;
+            /* Ruby Red */
+            background-color: #ffffff;
+            border-bottom-color: #880000;
+        }
+
+        .tab-inactive {
+            color: #4b5563;
+            /* Gray-600 */
+            background-color: #e9ecef;
+            border-bottom-color: #d1d5db;
+        }
+
 
         /* INTERACTION & FORM */
         .cursor-not-allowed {
@@ -803,6 +847,9 @@
         const User = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
         const Scissors = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>;
         const Clock = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
+        const CheckCircle = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>; // New Icon
+        const ShoppingCart = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>; // New Icon
+        const Layers = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l10 5.5-10 5.5-10-5.5zm0 18l10-5.5-10-5.5-10 5.5z"></path></svg>; // New Icon
         const ChevronRight = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>;
         const ChevronDown = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>;
         const X = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
@@ -869,16 +916,19 @@
             const [fatalError, setFatalError] = useState(null); // For connection/auth failures
             const [operationalError, setOperationalError] = useState(null); // For form/CRUD failures
             const [isUploading, setIsUploading] = useState(false);
-            const [userEmail, setUserEmail] = useState('Anonymous User');
+            const [userEmail, setUserEmail] = useState('Anon-User'); // Changed default to Anon-User
 
             // NEW STATE FOR IMAGE MODAL
             const [selectedImageUrl, setSelectedImageUrl] = useState(null);
+
+            // NEW STATE FOR TABS
+            const [activeTab, setActiveTab] = useState('orders'); // Default to Order Assignment
 
             // Refs for hidden file inputs
             const cameraInputRef = useRef(null);
             const galleryInputRef = useRef(null);
 
-            // Form State
+            // Form State (Stock Addition)
             const [newFabric, setNewFabric] = useState({
                 name: '',
                 websiteProductName: '', // NEW FIELD
@@ -889,14 +939,38 @@
             });
             const [newFabricImageFile, setNewFabricImageFile] = useState(null);
 
+            // Form State (Order Assignment - NEW)
+            const [orderForm, setOrderForm] = useState({
+                orderNumber: '',
+                fabricId: '',
+                lengthToCut: '',
+                customerName: '',
+                outputStyle: '', // Style related to website product name
+                size: 'M',
+            });
+
+            // Dynamic value for Order Form based on selected fabric
+            const selectedFabric = useMemo(() => {
+                return fabrics.find(f => f.id === orderForm.fabricId);
+            }, [fabrics, orderForm.fabricId]);
+
+
             // State for updating current stock
-            const [updateFabricId, setUpdateFabricId] = useState(null);
-            const [updateAmountUsed, setUpdateAmountUsed] = useState('');
+            const [isStockAdjusting, setIsStockAdjusting] = useState(false); // Modal visibility
+            const [adjustmentType, setAdjustmentType] = useState(null); // 'ADD' or 'DEDUCT'
+            const [adjustmentFabricId, setAdjustmentFabricId] = useState(null); // Fabric ID for modal
+            const [adjustmentAmount, setAdjustmentAmount] = useState(''); // Amount input for modal
+
+
             // NEW TRACKING FIELDS
             const [updateOrderNumber, setUpdateOrderNumber] = useState('');
             const [updateProductName, setUpdateProductName] = useState('');
             const [updateSize, setUpdateSize] = useState('');
             const [updateCustomerName, setUpdateCustomerName] = useState('');
+            const [updateOrderStatus, setUpdateOrderStatus] = useState('Sent to Tailor'); // Order Status Field
+            // NEW: State for capturing selling price on receipt
+            const [sellingPrice, setSellingPrice] = useState('');
+
 
             // State for viewing history
             const [historyFabricId, setHistoryFabricId] = useState(null);
@@ -1006,7 +1080,8 @@
             // 3. TRANSACTION HISTORY LISTENER
             // ------------------------------------
             useEffect(() => {
-                if (!db || !historyFabricId) {
+                if (!db || !userId) return; // Prevent listener from running if DB/User is not ready
+                if (!historyFabricId) {
                     setTransactionHistory([]);
                     return;
                 }
@@ -1033,8 +1108,7 @@
                 } catch (e) {
                     console.error("History Query Error:", e);
                 }
-            }, [db, historyFabricId]);
-
+            }, [db, userId, historyFabricId]); // Added userId dependency
 
 
             // ------------------------------------
@@ -1121,6 +1195,9 @@
                         lengthRequiredPerOutfit: lengthRequiredPerOutfitFloat,
                         costPerMeter: costPerMeterFloat,
                         imageUrl: imageUrlToStore,
+                        // NEW WIP STATUS FIELDS
+                        orderWIP: false, // Is any order currently assigned to this fabric?
+                        currentOrderStatus: 'None',
                         updatedByEmail: userEmail,
                         updatedAt: serverTimestamp(),
                         createdAt: serverTimestamp(),
@@ -1170,48 +1247,222 @@
                 }
             };
 
-            const handleUpdateStock = async (e) => {
-                e.preventDefault();
-                if (!db || !userId || !updateFabricId || !updateAmountUsed) return;
+            // NEW: Simplified function used by the Order Assignment Form
+            const handleOrderAssignment = async (e) => {
+                e.preventDefault(); // Stop default form submission
 
-                const amountUsed = parseFloat(updateAmountUsed);
-                if (isNaN(amountUsed) || amountUsed <= 0) {
-                    setOperationalError("Please enter a valid amount of fabric used (a positive number).");
+                if (!db || !userId) return;
+
+                const { orderNumber, fabricId, lengthToCut, customerName, outputStyle, size } = orderForm;
+
+                // --- Validation Check (must be explicit) ---
+                if (!orderNumber || !fabricId || !lengthToCut) {
+                    setOperationalError("Order Number, Fabric Selection, and Cut Length are required to assign an order.");
                     return;
                 }
 
-                const fabric = fabrics.find(f => f.id === updateFabricId);
+                const fabric = fabrics.find(f => f.id === fabricId);
+                const amountUsed = parseFloat(lengthToCut);
+
+                if (!fabric || isNaN(amountUsed) || amountUsed <= 0) {
+                    setOperationalError("Invalid fabric selection or amount to cut.");
+                    return;
+                }
+
+                // --- Stock Check ---
+                const newCurrentLength = fabric.currentLength - amountUsed;
+                if (newCurrentLength < 0) {
+                    setOperationalError(`Cannot cut ${amountUsed} ${fabric.unit}. Only ${fabric.currentLength.toFixed(2)} ${fabric.unit} remaining.`);
+                    return;
+                }
+
+                // FIX: Trigger the full stock update logic using the synchronous payload
+                const updatePayload = {
+                    fabricId: fabricId,
+                    amountUsed: lengthToCut,
+                    orderNumber: orderNumber,
+                    customerName: customerName,
+                    productName: outputStyle, // Output Style maps to Product Name in log
+                    size: size,
+                    orderStatus: 'Sent to Tailor'
+                };
+
+                await handleUpdateStock(updatePayload);
+
+                // Clear Order Form after successful update 
+                setOrderForm({
+                    orderNumber: '',
+                    fabricId: '',
+                    lengthToCut: '',
+                    customerName: '',
+                    outputStyle: '',
+                    size: 'M',
+                });
+            }
+
+            // CONSOLIDATED FUNCTION: Handles ADDITION or DEDUCTION from modal
+            const handleStockAdjustmentSubmit = async (e) => {
+                e.preventDefault();
+
+                if (!adjustmentFabricId || !adjustmentAmount) {
+                    setOperationalError("Adjustment amount is required.");
+                    return;
+                }
+
+                const id = adjustmentFabricId;
+                const amount = adjustmentAmount;
+                const isAddition = adjustmentType === 'ADD';
+
+                const fabric = fabrics.find(f => f.id === id);
                 if (!fabric) return;
 
-                const newCurrentLength = fabric.currentLength - amountUsed;
-
-                if (newCurrentLength < 0) {
-                    setOperationalError(`Cannot use ${amountUsed} ${fabric.unit}. Only ${fabric.currentLength.toFixed(2)} ${fabric.unit} remaining.`);
+                const amountFloat = parseFloat(amount);
+                if (isNaN(amountFloat) || amountFloat <= 0) {
+                    setOperationalError("Please enter a valid, positive amount.");
                     return;
                 }
 
+                let newCurrentLength;
+                let transactionType;
+                let lengthChange;
+
+                if (isAddition) {
+                    // ADDITION LOGIC
+                    newCurrentLength = fabric.currentLength + amountFloat;
+                    transactionType = 'ADDITION (Manual)';
+                    lengthChange = amountFloat;
+                } else {
+                    // DEDUCTION LOGIC
+                    newCurrentLength = fabric.currentLength - amountFloat;
+                    transactionType = 'DEDUCTION (Manual)';
+                    lengthChange = -amountFloat;
+
+                    if (newCurrentLength < 0) {
+                        setOperationalError(`Cannot deduct ${amountFloat} ${fabric.unit}. Only ${fabric.currentLength.toFixed(2)} ${fabric.unit} remaining.`);
+                        return;
+                    }
+                }
+
+                // Use a default log entry for simple manual stock updates
+                const defaultOrderNumber = `Manual-${isAddition ? 'ADD' : 'DEDUCT'}-${Date.now().toString(36).slice(-4)}`;
+
                 try {
-                    const fabricDocRef = doc(db, COLLECTION_PATH, updateFabricId);
+                    const fabricDocRef = doc(db, COLLECTION_PATH, id);
 
                     // 1. ADD NEW TRANSACTION TO SUBCOLLECTION (HISTORY)
-                    const historyCollectionRef = collection(fabricDocRef, 'history');
-
                     const transactionData = {
-                        amountUsed: amountUsed,
-                        orderNumber: updateOrderNumber || 'N/A',
-                        productName: updateProductName || 'N/A',
-                        size: updateSize || 'N/A',
-                        customerName: updateCustomerName || 'N/A',
+                        amountUsed: amountFloat,
+                        orderNumber: defaultOrderNumber,
+                        productName: transactionType,
+                        size: 'N/A',
+                        customerName: 'N/A',
+                        status: transactionType,
                         usedByEmail: userEmail,
                         usedAt: serverTimestamp(),
                     };
 
-                    await addDoc(historyCollectionRef, transactionData);
+                    await addDoc(collection(fabricDocRef, 'history'), transactionData);
 
                     // 2. UPDATE MAIN DOCUMENT (CURRENT LENGTH)
                     const updateData = {
                         currentLength: newCurrentLength,
-                        // Set the current transaction details as the "last used" summary in the main document
+                        updatedByEmail: userEmail,
+                        updatedAt: serverTimestamp(),
+                        // Clear WIP status if any simple update is performed
+                        orderWIP: false,
+                        currentOrderStatus: 'None',
+                    };
+
+                    await setDoc(fabricDocRef, updateData, { merge: true });
+
+                    // PUSH TO GOOGLE SHEET (TYPE: MANUAL USE)
+                    pushToGoogleSheet({
+                        fabricName: fabric.name,
+                        websiteProductName: fabric.websiteProductName,
+                        type: transactionType,
+                        length: lengthChange,
+                        unit: fabric.unit,
+                        cost: fabric.costPerMeter,
+                        orderNumber: defaultOrderNumber,
+                        customerName: 'N/A',
+                        loggedBy: userEmail
+                    });
+
+                    // Reset modal state upon success
+                    setIsStockAdjusting(false);
+                    setAdjustmentAmount('');
+                    setOperationalError(null);
+
+                } catch (e) {
+                    console.error("Error updating stock and history: ", e);
+                    setOperationalError(`Failed to update stock: ${e.message}. Check Security Rules.`);
+                }
+            };
+
+            // Functions to open the modal
+            const openAdjustmentModal = (id, type) => {
+                setAdjustmentFabricId(id);
+                setAdjustmentType(type);
+                setAdjustmentAmount('');
+                setIsStockAdjusting(true);
+            }
+
+            const closeAdjustmentModal = () => {
+                setIsStockAdjusting(false);
+                setAdjustmentAmount('');
+                setAdjustmentFabricId(null);
+            }
+
+            const handleUpdateStock = async (payload) => {
+
+                // This function now accepts a PAYLOAD object directly from handleOrderAssignment
+                const { fabricId, amountUsed, orderNumber, customerName, productName, size, orderStatus } = payload;
+
+                if (!db || !userId || !fabricId || !amountUsed || !orderNumber) {
+                    setOperationalError("Internal Error: Missing required update fields.");
+                    return;
+                }
+
+                const amountUsedFloat = parseFloat(amountUsed);
+                if (isNaN(amountUsedFloat) || amountUsedFloat <= 0) {
+                    setOperationalError("Please enter a valid amount of fabric used (a positive number).");
+                    return;
+                }
+
+                const fabric = fabrics.find(f => f.id === fabricId);
+                if (!fabric) return;
+
+                const newCurrentLength = fabric.currentLength - amountUsedFloat;
+
+                if (newCurrentLength < 0) {
+                    setOperationalError(`Cannot use ${amountUsedFloat} ${fabric.unit}. Only ${fabric.currentLength.toFixed(2)} ${fabric.unit} remaining.`);
+                    return;
+                }
+
+                try {
+                    const fabricDocRef = doc(db, COLLECTION_PATH, fabricId);
+
+                    // 1. ADD NEW TRANSACTION TO SUBCOLLECTION (HISTORY)
+                    const transactionData = {
+                        amountUsed: amountUsedFloat,
+                        orderNumber: orderNumber,
+                        productName: productName || 'N/A',
+                        size: size || 'N/A',
+                        customerName: customerName || 'N/A',
+                        // STATUS FIELD FOR THIS CUT
+                        status: orderStatus || 'Sent to Tailor',
+                        usedByEmail: userEmail,
+                        usedAt: serverTimestamp(),
+                    };
+
+                    await addDoc(collection(fabricDocRef, 'history'), transactionData);
+
+                    // 2. UPDATE MAIN DOCUMENT (WIP STATUS, CURRENT LENGTH, LAST ORDER DETAILS)
+                    const updateData = {
+                        currentLength: newCurrentLength,
+                        // Set WIP to true, mark the order details, and set status
+                        orderWIP: true,
+                        currentOrderStatus: transactionData.status, // Set status from form
                         lastOrderNumber: transactionData.orderNumber,
                         lastProductName: transactionData.productName,
                         lastCustomerName: transactionData.customerName,
@@ -1225,9 +1476,9 @@
                     // PUSH TO GOOGLE SHEET (TYPE: UPDATE/USE)
                     pushToGoogleSheet({
                         fabricName: fabric.name,
-                        websiteProductName: fabric.websiteProductName, // NEW FIELD ADDED TO SHEET LOG
+                        websiteProductName: fabric.websiteProductName,
                         type: 'USE',
-                        length: -amountUsed, // Log as negative for deduction
+                        length: -amountUsedFloat, // Log as negative for deduction
                         unit: fabric.unit,
                         cost: fabric.costPerMeter,
                         orderNumber: transactionData.orderNumber,
@@ -1235,15 +1486,10 @@
                         loggedBy: userEmail
                     });
 
-                    // Clear update form states and switch back to viewing history
-                    setUpdateFabricId(null);
-                    setUpdateAmountUsed('');
-                    setUpdateOrderNumber('');
-                    setUpdateProductName('');
-                    setUpdateSize('');
-                    setUpdateCustomerName('');
+                    // Clear update form states (This function is now only used by handleSimpleStockUpdate)
+                    // The Order Form reset is handled in handleOrderAssignment
                     setOperationalError(null);
-                    setHistoryFabricId(fabric.id); // Automatically open history view after successful update
+                    setHistoryFabricId(fabricId); // Automatically open history view after successful update
 
                 } catch (e) {
                     console.error("Error updating stock and history: ", e);
@@ -1251,6 +1497,114 @@
                 }
             };
 
+            // NEW FUNCTION: Handles marking an order as received from tailor
+            const handleReceiveFromTailor = async (fabricId, orderNumber, sellingPrice) => {
+                if (!db || !userId) return;
+
+                const fabric = fabrics.find(f => f.id === fabricId);
+                if (!fabric) return;
+
+                const price = parseFloat(sellingPrice);
+                if (isNaN(price) || price <= 0) {
+                    setOperationalError("Please enter a valid final selling price.");
+                    return;
+                }
+
+                try {
+                    const fabricDocRef = doc(db, COLLECTION_PATH, fabricId);
+
+                    // 1. UPDATE MAIN DOCUMENT STATUS (Status changes to 'Ready to Ship', orderWIP remains true)
+                    const updateData = {
+                        currentOrderStatus: 'Ready to Ship',
+                        updatedByEmail: userEmail,
+                        updatedAt: serverTimestamp(),
+                        // NEW FIELD: Log the final determined selling price of the garment
+                        finalSellingPrice: price,
+                        receivedFromTailorDate: serverTimestamp(), // Log the received date
+                    };
+
+                    await setDoc(fabricDocRef, updateData, { merge: true });
+
+                    // 2. ADD NEW TRANSACTION TO SUBCOLLECTION (HISTORY) for the status change
+                    const transactionData = {
+                        amountUsed: 0,
+                        orderNumber: orderNumber,
+                        productName: fabric.lastProductName || 'N/A',
+                        size: 'N/A',
+                        customerName: fabric.lastCustomerName || 'N/A',
+                        status: 'Received from Tailor',
+                        usedByEmail: userEmail,
+                        usedAt: serverTimestamp(),
+                        finalSellingPrice: price, // Log selling price in history
+                    };
+                    await addDoc(collection(fabricDocRef, 'history'), transactionData);
+
+                    // 3. PUSH TO GOOGLE SHEET (TYPE: RECEIVED)
+                    pushToGoogleSheet({
+                        fabricName: fabric.name,
+                        websiteProductName: fabric.websiteProductName,
+                        type: 'RECEIVED',
+                        length: 0,
+                        unit: fabric.unit,
+                        cost: fabric.costPerMeter,
+                        orderNumber: orderNumber,
+                        customerName: fabric.lastCustomerName || 'N/A',
+                        loggedBy: userEmail
+                    });
+                    setOperationalError(null);
+                    // Clear the selling price input after successful save
+                    setSellingPrice('');
+                    setAdjustmentFabricId(null); // Close the input box
+                    // Set history view to this fabric to confirm the log
+                    setHistoryFabricId(fabricId);
+
+                } catch (e) {
+                    console.error("Error receiving order from tailor: ", e);
+                    setOperationalError(`Failed to mark order as received: ${e.message}.`);
+                }
+            };
+
+            // NEW FUNCTION: Handles marking an order as complete (shipped)
+            const handleCompleteOrder = async (fabricId, orderNumber) => {
+                if (!db || !userId) return;
+
+                const fabric = fabrics.find(f => f.id === fabricId);
+                if (!fabric) return;
+
+                // **REMOVED window.confirm() TO AVOID BLOCKING/BUGGING**
+
+                try {
+                    const fabricDocRef = doc(db, COLLECTION_PATH, fabricId);
+
+                    // 1. UPDATE MAIN DOCUMENT STATUS
+                    const updateData = {
+                        orderWIP: false, // Order is no longer in progress
+                        currentOrderStatus: 'Shipped (Completed)',
+                        updatedByEmail: userEmail,
+                        updatedAt: serverTimestamp(),
+                    };
+
+                    await setDoc(fabricDocRef, updateData, { merge: true });
+
+                    // 2. PUSH TO GOOGLE SHEET (TYPE: COMPLETION)
+                    pushToGoogleSheet({
+                        fabricName: fabric.name,
+                        websiteProductName: fabric.websiteProductName,
+                        type: 'SHIPPED/COMPLETED',
+                        length: 0, // No length change, just status update
+                        unit: fabric.unit,
+                        cost: fabric.costPerMeter,
+                        orderNumber: orderNumber,
+                        customerName: fabric.lastCustomerName || 'N/A',
+                        loggedBy: userEmail
+                    });
+                    setOperationalError(null);
+
+                } catch (e) {
+                    console.error("Error completing order: ", e);
+                    setOperationalError(`Failed to mark order complete: ${e.message}.`);
+                }
+            };
             // Toggle history view
             const toggleHistory = (fabricId) => {
                 setHistoryFabricId(historyFabricId === fabricId ? null : fabricId);
@@ -1268,6 +1622,35 @@
             const totalPotentialOutfits = useMemo(() => {
                 return fabrics.reduce((sum, f) => sum + f.potentialOutfits, 0);
             }, [fabrics]);
+
+            const totalOrdersWIP = useMemo(() => {
+                // Count all orders that are NOT marked as 'Shipped (Completed)'
+                return fabrics.filter(f => f.orderWIP && f.currentOrderStatus !== 'Shipped (Completed)').length;
+            }, [fabrics]);
+
+            const totalReadyToShip = useMemo(() => {
+                // Count only orders marked 'Ready to Ship'
+                return fabrics.filter(f => f.currentOrderStatus === 'Ready to Ship').length;
+            }, [fabrics]);
+
+            const totalShippedOrders = useMemo(() => {
+                // We need to count the number of UNIQUE order numbers that have been marked as Shipped.
+                const shippedOrders = fabrics.filter(f => f.currentOrderStatus === 'Shipped (Completed)' && f.lastOrderNumber);
+                const uniqueOrders = new Set(shippedOrders.map(f => f.lastOrderNumber));
+
+                // If the fabric item was used multiple times for the same order number, 
+                // it still counts as one shipped order for this analysis.
+                return uniqueOrders.size;
+
+            }, [fabrics]);
+
+            const totalShippedValue = useMemo(() => {
+                return fabrics
+                    .filter(f => f.currentOrderStatus === 'Shipped (Completed)' && f.finalSellingPrice)
+                    .reduce((sum, f) => sum + (f.finalSellingPrice || 0), 0)
+                    .toFixed(2);
+            }, [fabrics]);
+
 
             const totalInventoryValue = useMemo(() => {
                 // Sum the calculated cost of all remaining stock items
@@ -1291,6 +1674,17 @@
                 return 'N/A';
             };
 
+            // Available fabrics for dropdowns (only show those with stock)
+            const availableFabrics = useMemo(() => {
+                return fabrics.filter(f => f.currentLength > 0);
+            }, [fabrics]);
+
+            // Filter fabrics currently assigned to an order
+            const wipFabrics = useMemo(() => {
+                // Only show orders that are NOT yet shipped
+                return fabrics.filter(f => f.orderWIP && f.currentOrderStatus !== 'Shipped (Completed)');
+            }, [fabrics]);
+
 
             if (fatalError) {
                 return (
@@ -1310,6 +1704,465 @@
                     </div>
                 );
             }
+
+            // ------------------------------------
+            // 6. RENDER COMPONENTS
+            // ------------------------------------
+
+            const renderStockAdjustmentModal = () => {
+                if (!isStockAdjusting || !adjustmentFabricId) return null;
+
+                const fabric = fabrics.find(f => f.id === adjustmentFabricId);
+                if (!fabric) return null;
+
+                const isAdd = adjustmentType === 'ADD';
+                const actionVerb = isAdd ? 'Add' : 'Deduct';
+                const btnColor = isAdd ? 'bg-green-600 hover:bg-green-700' : 'btn-secondary';
+                const actionTitle = isAdd ? 'Add Stock Back' : 'Deduct Stock (Manual)';
+
+                return (
+                    <div className="modal-overlay" onClick={closeAdjustmentModal}>
+                        <div
+                            className="bg-white p-6 rounded-xl shadow-lg w-11/12 md:w-1/3"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h3 className="text-2xl font-bold mb-4 text-gray-800 flex items-center">
+                                <Layers className="w-6 h-6 mr-2 text-ruby-red" /> {actionTitle}
+                            </h3>
+                            <p className="mb-4 text-gray-600">
+                                Adjusting stock for: <span className="font-semibold">{fabric.name}</span>
+                            </p>
+                            <form onSubmit={handleStockAdjustmentSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Amount to {actionVerb} ({fabric.unit})</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0.01"
+                                        required
+                                        className="mt-1 block w-full rounded-md border-gray-300 p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                        value={adjustmentAmount}
+                                        onChange={(e) => setAdjustmentAmount(e.target.value)}
+                                        placeholder={`Enter amount to ${actionVerb}`}
+                                    />
+                                    {isAdd ? (
+                                        <p className="mt-1 text-xs text-gray-500">This will increase the current stock.</p>
+                                    ) : (
+                                        <p className="mt-1 text-xs text-gray-500">Remaining stock: {fabric.currentLength.toFixed(2)} {fabric.unit}</p>
+                                    )}
+                                </div>
+                                <div className="flex space-x-3 justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={closeAdjustmentModal}
+                                        className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md font-medium hover:bg-gray-400 transition duration-150"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className={`text-white px-4 py-2 rounded-md font-medium transition duration-150 ${btnColor}`}
+                                    >
+                                        Confirm {actionVerb}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )
+            }
+
+
+            const renderWIPDashboard = () => {
+
+                const ordersSentToTailor = wipFabrics.filter(f => f.currentOrderStatus === 'Sent to Tailor');
+                const ordersReadyToShip = wipFabrics.filter(f => f.currentOrderStatus === 'Ready to Ship');
+
+                // We access the state variable adjustmentFabricId here
+                const isReceivingOrder = (fabricId) => adjustmentFabricId === fabricId;
+
+                return (
+                    <div className="p-6">
+                        <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center"><Clock className="w-5 h-5 mr-2" /> Current Work-In-Progress Orders ({wipFabrics.length})</h3>
+
+                        {wipFabrics.length === 0 ? (
+                            <div className="p-4 bg-gray-100 rounded-lg text-gray-600">No orders are currently assigned or in production. Start by assigning fabric above!</div>
+                        ) : (
+                            <>
+                                {/* Section 1: Orders Sent to Tailor */}
+                                <h4 className="text-xl font-semibold text-gray-700 mb-3 border-b pb-1">In Production (Sent to Tailor) - {ordersSentToTailor.length} Items</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                    {ordersSentToTailor
+                                        .map(fabric => (
+                                            <div key={fabric.id} className="p-4 border rounded-lg shadow-sm bg-yellow-50 border-yellow-300">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <h4 className="font-bold text-gray-800">{fabric.lastOrderNumber || 'Order N/A'}</h4>
+                                                    <span className="text-sm font-semibold p-1 rounded-md text-gold-600 bg-yellow-200">{fabric.currentOrderStatus}</span>
+                                                </div>
+                                                <p className="text-sm font-semibold text-gray-800 mb-2">Fabric: {fabric.name}</p>
+                                                <p className="text-sm text-gray-600">Customer: {fabric.lastCustomerName || 'N/A'}</p>
+                                                <p className="text-sm text-gray-600 mb-3">Amount Cut: <span className="text-red-600 font-semibold">{fabric.lastAmountUsed?.toFixed(2)} {fabric.unit}</span></p>
+
+                                                {/* Receiver Input/Button Logic */}
+                                                {isReceivingOrder(fabric.id) ? (
+                                                    <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200">
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0.01"
+                                                            required
+                                                            placeholder="Final Selling Price (₹)"
+                                                            className="w-full p-2 border border-yellow-500 rounded-md shadow-sm"
+                                                            value={sellingPrice}
+                                                            onChange={(e) => setSellingPrice(e.target.value)}
+                                                        />
+                                                        <div className="flex space-x-2">
+                                                            <button
+                                                                onClick={() => handleReceiveFromTailor(fabric.id, fabric.lastOrderNumber, sellingPrice)}
+                                                                className="flex-1 bg-sales-blue text-white px-3 py-2 rounded-md font-medium hover:bg-blue-700 transition duration-150"
+                                                                style={{ backgroundColor: '#1E3A8A' }} /* Dark Blue for action */
+                                                                disabled={!sellingPrice}
+                                                            >
+                                                                Confirm Received (Ready to Ship)
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setAdjustmentFabricId(null)} /* Resetting adjustment ID */
+                                                                className="bg-gray-300 text-gray-800 px-3 py-2 rounded-md font-medium hover:bg-gray-400"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => setAdjustmentFabricId(fabric.id)} /* Setting adjustment ID to show input */
+                                                        className="w-full bg-sales-blue text-white px-3 py-2 rounded-md font-medium hover:bg-blue-700 transition duration-150 mt-2"
+                                                        style={{ backgroundColor: '#1E3A8A' }} /* Dark Blue for action */
+                                                    >
+                                                        Receive from Tailor (Set Price)
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                </div>
+
+                                {/* Section 2: Ready to Ship Orders */}
+                                <h4 className="text-xl font-semibold text-gray-700 mb-3 border-b pb-1">Ready to Ship (Final Inventory) - {ordersReadyToShip.length} Items</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {ordersReadyToShip
+                                        .map(fabric => (
+                                            <div key={fabric.id} className="p-4 border rounded-lg shadow-sm bg-green-100 border-green-600">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <h4 className="font-bold text-gray-800">{fabric.lastOrderNumber || 'Order N/A'}</h4>
+                                                    <span className="text-sm font-semibold p-1 rounded-md text-green-800 bg-green-200">{fabric.currentOrderStatus}</span>
+                                                </div>
+                                                <p className="text-xs text-gray-600 font-medium">Customer: {fabric.lastCustomerName || 'N/A'}</p>
+                                                <p className="text-xs text-gray-600 font-medium">Selling Price: <span className="font-bold text-green-600">₹ {fabric.finalSellingPrice?.toFixed(2) || 'N/A'}</span></p>
+                                                <p className="text-xs text-gray-600 font-medium mb-3">Received Date: {fabric.receivedDate ? formatTimestamp(fabric.receivedDate) : 'N/A'}</p>
+
+                                                <button
+                                                    onClick={() => handleCompleteOrder(fabric.id, fabric.lastOrderNumber)}
+                                                    className="w-full btn-primary text-white px-3 py-2 rounded-md font-medium transition duration-150 mt-2"
+                                                >
+                                                    Mark as SHIPPED/Completed
+                                                </button>
+                                            </div>
+                                        ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                );
+            }
+
+
+            const renderOrderAssignmentForm = () => (
+                <div className="p-6">
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center"><ShoppingCart className="w-5 h-5 mr-2" /> Assign New Order Cut</h2>
+                    <form onSubmit={handleOrderAssignment} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                        {/* 1. Order Number */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Order Number (Required)</label>
+                            <input
+                                type="text"
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                value={orderForm.orderNumber}
+                                onChange={(e) => setOrderForm({ ...orderForm, orderNumber: e.target.value })}
+                                placeholder="e.g., #2024-1005"
+                            />
+                        </div>
+
+                        {/* 2. Select Fabric */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Select Fabric (Available Stock)</label>
+                            <select
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                value={orderForm.fabricId}
+                                onChange={(e) => setOrderForm({ ...orderForm, fabricId: e.target.value })}
+                            >
+                                <option value="">--- Choose Fabric ---</option>
+                                {availableFabrics.map(f => (
+                                    <option key={f.id} value={f.id} disabled={f.currentLength < f.lengthRequiredPerOutfit}>
+                                        {f.name} ({f.currentLength.toFixed(2)} {f.unit} left)
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* 3. Length to Cut */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Length to Cut ({selectedFabric?.unit || 'm'})</label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                value={orderForm.lengthToCut}
+                                onChange={(e) => setOrderForm({ ...orderForm, lengthToCut: e.target.value })}
+                                placeholder={`Needed: ${selectedFabric?.lengthRequiredPerOutfit?.toFixed(2) || '---'}`}
+                            />
+                            {selectedFabric && orderForm.lengthToCut > selectedFabric.currentLength && (
+                                <p className="mt-1 text-xs text-red-600 font-semibold">! Warning: Exceeds stock ({selectedFabric.currentLength.toFixed(2)} {selectedFabric.unit})</p>
+                            )}
+                        </div>
+
+                        {/* 4. Customer Name */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Customer Name</label>
+                            <input
+                                type="text"
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                value={orderForm.customerName}
+                                onChange={(e) => setOrderForm({ ...orderForm, customerName: e.target.value })}
+                                placeholder="Customer Name"
+                            />
+                        </div>
+
+                        {/* 5. Output Style / Product Name */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Output Style / Product Name</label>
+                            <input
+                                type="text"
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                value={orderForm.outputStyle}
+                                onChange={(e) => setOrderForm({ ...orderForm, outputStyle: e.target.value })}
+                                placeholder="Kurti, Co-ord Set, Dress, etc."
+                            />
+                        </div>
+
+                        {/* 6. Size */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Size</label>
+                            <select
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                value={orderForm.size}
+                                onChange={(e) => setOrderForm({ ...orderForm, size: e.target.value })}
+                            >
+                                <option value="S">S</option>
+                                <option value="M">M</option>
+                                <option value="L">L</option>
+                                <option value="XL">XL</option>
+                                <option value="XXL">XXL</option>
+                            </select>
+                        </div>
+
+                        {/* 7. Summary / Action */}
+                        <div className="md:col-span-2 lg:col-span-2 flex flex-col justify-end">
+                            <div className="bg-gray-100 p-3 rounded-lg text-sm text-gray-700 mb-2">
+                                {selectedFabric ? (
+                                    <>
+                                        <p className="font-semibold">{selectedFabric.name} Selected</p>
+                                        <p>Remaining after cut: <span className="font-bold text-dark-red">{(selectedFabric.currentLength - (orderForm.lengthToCut || 0)).toFixed(2)} {selectedFabric.unit}</span></p>
+                                    </>
+                                ) : (
+                                    <p className="font-semibold text-gray-500">Select a fabric to see remaining stock.</p>
+                                )}
+                            </div>
+                            <button
+                                type="submit"
+                                className={`w-full justify-center inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white transition duration-150 btn-secondary`}
+                            >
+                                <Scissors className="w-5 h-5 mr-2" /> Assign Fabric & Mark WIP
+                            </button>
+                        </div>
+
+                    </form>
+
+                    {/* NEW WIP Dashboard Below Assignment */}
+                    <div className="mt-8 pt-4 border-t border-gray-200">
+                        {renderWIPDashboard()}
+                    </div>
+                </div>
+            );
+
+
+            const renderAddStock = () => (
+                <div className="p-6">
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center"><Plus className="w-5 h-5 mr-2" /> Add New Fabric Stock (Bulk Input)</h2>
+                    <form onSubmit={handleAddFabricWrapper} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                        {/* 1. Fabric Name (Physical SKU) */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Fabric Name (Internal SKU)</label>
+                            <input
+                                type="text"
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                value={newFabric.name}
+                                onChange={(e) => setNewFabric({ ...newFabric, name: e.target.value })}
+                            />
+                        </div>
+
+                        {/* 2. Website Product Name (NEW INPUT) */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Website Product Name</label>
+                            <input
+                                type="text"
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                value={newFabric.websiteProductName}
+                                onChange={(e) => setNewFabric({ ...newFabric, websiteProductName: e.target.value })}
+                                placeholder="e.g., 'Emerald Bloom Kurti'"
+                            />
+                        </div>
+
+                        {/* 3. Total Length */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Total Length in Stock</label>
+                            <div className="mt-1 flex rounded-md shadow-sm">
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0.1"
+                                    required
+                                    className="flex-1 block w-full rounded-l-md border-gray-300 p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                    value={newFabric.totalLength}
+                                    onChange={(e) => setNewFabric({ ...newFabric, totalLength: e.target.value })}
+                                />
+                                <select
+                                    className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+                                    value={newFabric.unit}
+                                    onChange={(e) => setNewFabric({ ...newFabric, unit: e.target.value })}
+                                >
+                                    <option value="meters">meters</option>
+                                    <option value="yards">yards</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* 4. Cost Per Meter */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Cost per Meter (₹)</label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                value={newFabric.costPerMeter}
+                                onChange={(e) => setNewFabric({ ...newFabric, costPerMeter: e.target.value })}
+                            />
+                        </div>
+
+
+                        {/* 5. Length Required Per Outfit */}
+                        <div className="form-input-group">
+                            <label className="block text-sm font-medium text-gray-700">Length Required per Outfit</label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0.1"
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-ruby-red focus:border-ruby-red"
+                                value={newFabric.lengthRequiredPerOutfit}
+                                onChange={(e) => setNewFabric({ ...newFabric, lengthRequiredPerOutfit: e.target.value })}
+                            />
+                            <p className="mt-1 text-xs text-gray-500">Meters to make one average outfit.</p>
+                        </div>
+
+                        {/* Image Capture / Gallery Buttons (Spans full width) */}
+                        <div className="lg:col-span-4 md:col-span-2 pt-2 form-input-group">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Fabric Image (Choose Option)</label>
+                            <div className="flex space-x-4">
+                                {/* Hidden input for camera */}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    ref={cameraInputRef}
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                />
+                                {/* Button to trigger camera */}
+                                <button
+                                    type="button"
+                                    onClick={() => cameraInputRef.current.click()}
+                                    className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-ruby-red-100 text-dark-red rounded-lg shadow-md hover:bg-ruby-red-100 transition duration-150"
+                                >
+                                    <Camera className="w-6 h-6" />
+                                    <span className="text-xs mt-1">Take Photo</span>
+                                </button>
+
+                                {/* Hidden input for gallery */}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    ref={galleryInputRef}
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                />
+                                {/* Button to trigger gallery */}
+                                <button
+                                    type="button"
+                                    onClick={() => galleryInputRef.current.click()}
+                                    className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-gold-100 text-dark-red rounded-lg shadow-md hover:bg-gray-200 transition duration-150"
+                                >
+                                    <ImageIcon className="w-6 h-6" />
+                                    <span className="text-xs mt-1">Upload from Gallery</span>
+                                </button>
+                                <div className="flex flex-col justify-center ml-4">
+                                    {newFabricImageFile && (
+                                        <p className="text-xs text-green-600 font-semibold">
+                                            File selected: {newFabricImageFile.name}
+                                            {(newFabricImageFile.size / 1024).toFixed(0) > 750 ?
+                                                <span className="text-red-600 font-bold ml-2"> (Too Large! Limit 750 KB)</span> : ''
+                                            }
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <p className="mt-1 text-xs text-gray-500">
+                                Images are stored in Firebase documents as a Base64 string (Max 750 KB).
+                            </p>
+                        </div>
+
+                        {/* Submit Button (Spans full width) */}
+                        <div className="lg:col-span-4 md:col-span-2 pt-2 form-input-group">
+                            <button
+                                type="submit"
+                                disabled={isUploading || !db}
+                                className={`w-full justify-center inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white transition duration-150 ${isUploading ? 'bg-gray-500 cursor-not-allowed' : 'btn-primary'}`}
+                            >
+                                {isUploading ? (
+                                    <>
+                                        <span className="spinner mr-2"></span> Uploading...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus className="w-5 h-5 mr-2" /> Add Fabric to Stock
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            );
 
             return (
                 <div className="p-4 md:p-8 bg-gray-50 min-h-screen font-sans">
@@ -1331,6 +2184,7 @@
                             </div>
                         </div>
                     )}
+                    {renderStockAdjustmentModal()}
                     <div className="max-w-6xl mx-auto">
                         <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Poshakh Fabric Stock Manager</h1>
                         <p className="text-sm text-gray-500 mb-6">
@@ -1349,9 +2203,9 @@
                         {/* Global Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 
-                            {/* Total Fabrics Card (Ruby Red Theme) */}
-                            <div className="card btn-primary text-white p-6 rounded-xl shadow-lg flex items-center">
-                                <Gauge className="w-8 h-8 mr-4" />
+                            {/* 1. Total Fabrics Card (Ruby Red Theme) */}
+                            <div className="card bg-metric text-metric p-6 rounded-xl shadow-lg flex items-center">
+                                <Gauge className="w-8 h-8 mr-4 icon-metric" />
 
                                 <div>
                                     <p className="text-sm opacity-80 uppercase font-semibold">Total Fabric SKUs</p>
@@ -1359,200 +2213,97 @@
                                 </div>
                             </div>
 
-                            {/* Total Potential Outfits Card (Gold/Mustard Theme) */}
-                            <div className="card btn-secondary text-gray-900 p-6 rounded-xl shadow-lg flex items-center">
-                                <Shirt className="w-8 h-8 mr-4" />
+                            {/* 2. Potential Outfits Card (New Position) */}
+                            <div className="card bg-metric text-metric p-6 rounded-xl shadow-lg flex items-center">
+                                <Shirt className="w-8 h-8 mr-4 icon-metric" />
                                 <div>
-                                    <p className="text-sm opacity-80 uppercase font-semibold">Total Potential Outfits</p>
+                                    <p className="text-sm opacity-80 uppercase font-semibold">Potential Outfits</p>
                                     <p className="text-3xl font-bold">{totalPotentialOutfits}</p>
                                 </div>
                             </div>
 
-                            {/* Total Inventory Value Card (Deep Green Theme - Cost to You) */}
-                            <div className="card bg-deep-green text-white p-6 rounded-xl shadow-lg flex items-center">
-                                <Tag className="w-8 h-8 mr-4" />
+                            {/* 3. Total Inventory Value Card (Cost to You) - FIX CONTRAST HERE */}
+                            <div className="card bg-metric text-metric p-6 rounded-xl shadow-lg flex items-center">
+                                <Tag className="w-8 h-8 mr-4 icon-metric" />
                                 <div>
                                     <p className="text-sm opacity-80 uppercase font-semibold">Total Inventory Value (Cost)</p>
                                     <p className="text-3xl font-bold">₹ {totalInventoryValue}</p>
                                 </div>
                             </div>
 
-                            {/* Total Potential Revenue Card (Sales Blue - Revenue Expectation) */}
-                            <div className="card bg-sales-blue text-white p-6 rounded-xl shadow-lg flex items-center">
-                                <Tag className="w-8 h-8 mr-4" />
+                            {/* 4. Total Potential Revenue Card (Sales Value) */}
+                            <div className="card bg-metric text-metric p-6 rounded-xl shadow-lg flex items-center">
+                                <Tag className="w-8 h-8 mr-4 icon-metric" />
                                 <div>
                                     <p className="text-sm opacity-80 uppercase font-semibold">Total Potential Revenue</p>
                                     <p className="text-3xl font-bold">₹ {totalPotentialRevenue}</p>
                                 </div>
                             </div>
+
+                            {/* 5. Orders Sent to Tailor (WIP) */}
+                            <div className="card bg-metric text-metric p-6 rounded-xl shadow-lg flex items-center">
+                                <Clock className="w-8 h-8 mr-4 icon-metric" />
+                                <div>
+                                    <p className="text-sm opacity-80 uppercase font-semibold">Orders Sent to Tailor</p>
+                                    <p className="text-3xl font-bold">{totalOrdersWIP - totalReadyToShip}</p>
+                                </div>
+                            </div>
+
+                            {/* 6. Ready to Ship (NEW CARD) */}
+                            <div className="card bg-metric text-metric p-6 rounded-xl shadow-lg flex items-center">
+                                <CheckCircle className="w-8 h-8 mr-4 icon-metric" />
+                                <div>
+                                    <p className="text-sm opacity-80 uppercase font-semibold">Ready to Ship (WIP)</p>
+                                    <p className="text-3xl font-bold">{totalReadyToShip}</p>
+                                </div>
+                            </div>
+
+                            {/* 7. Total Shipped Value (NEW CARD) */}
+                            <div className="card bg-metric text-metric p-6 rounded-xl shadow-lg flex items-center">
+                                <Tag className="w-8 h-8 mr-4 icon-metric" />
+                                <div>
+                                    <p className="text-sm opacity-80 uppercase font-semibold">Total Shipped Value</p>
+                                    <p className="text-3xl font-bold">₹ {totalShippedValue}</p>
+                                </div>
+                            </div>
+
+                            {/* 8. Total Shipped Count (New Card) */}
+                            <div className="card bg-metric text-metric p-6 rounded-xl shadow-lg flex items-center">
+                                <CheckCircle className="w-8 h-8 mr-4 icon-metric" />
+                                <div>
+                                    <p className="text-sm opacity-80 uppercase font-semibold">Total Orders Shipped</p>
+                                    <p className="text-3xl font-bold">{totalShippedOrders}</p>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Add New Fabric Section */}
-                        <div className="card bg-white p-6 rounded-xl shadow-lg mb-8">
-                            <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center"><Plus className="w-5 h-5 mr-2" /> Add New Fabric Stock</h2>
-                            <form onSubmit={handleAddFabricWrapper} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* TAB BAR */}
+                        <div className="flex mb-0 -space-x-1">
+                            <button
+                                className={`tab-button ${activeTab === 'orders' ? 'tab-active' : 'tab-inactive'}`}
+                                onClick={() => setActiveTab('orders')}
+                            >
+                                <span className="flex items-center"><ShoppingCart className="w-5 h-5 mr-2" /> Order Assignment</span>
+                            </button>
+                            <button
+                                className={`tab-button ${activeTab === 'stock' ? 'tab-active' : 'tab-inactive'}`}
+                                onClick={() => setActiveTab('stock')}
+                            >
+                                <span className="flex items-center"><Layers className="w-5 h-5 mr-2" /> Stock Management</span>
+                            </button>
+                        </div>
 
-                                {/* 1. Fabric Name (Physical SKU) */}
-                                <div className="form-input-group">
-                                    <label className="block text-sm font-medium text-gray-700">Fabric Name (Internal SKU)</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-blue-500 focus:border-border-blue-500"
-                                        value={newFabric.name}
-                                        onChange={(e) => setNewFabric({ ...newFabric, name: e.target.value })}
-                                    />
-                                </div>
-
-                                {/* 2. Website Product Name (NEW INPUT) */}
-                                <div className="form-input-group">
-                                    <label className="block text-sm font-medium text-gray-700">Website Product Name</label>
-                                    <input
-                                        type="text"
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-blue-500 focus:border-border-blue-500"
-                                        value={newFabric.websiteProductName}
-                                        onChange={(e) => setNewFabric({ ...newFabric, websiteProductName: e.target.value })}
-                                        placeholder="e.g., 'Emerald Bloom Kurti'"
-                                    />
-                                </div>
-
-                                {/* 3. Total Length */}
-                                <div className="form-input-group">
-                                    <label className="block text-sm font-medium text-gray-700">Total Length in Stock</label>
-                                    <div className="mt-1 flex rounded-md shadow-sm">
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            min="0.1"
-                                            required
-                                            className="flex-1 block w-full rounded-l-md border-gray-300 p-2 border focus:ring-blue-500 focus:border-blue-500"
-                                            value={newFabric.totalLength}
-                                            onChange={(e) => setNewFabric({ ...newFabric, totalLength: e.target.value })}
-                                        />
-                                        <select
-                                            className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
-                                            value={newFabric.unit}
-                                            onChange={(e) => setNewFabric({ ...newFabric, unit: e.target.value })}
-                                        >
-                                            <option value="meters">meters</option>
-                                            <option value="yards">yards</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {/* 4. Cost Per Meter */}
-                                <div className="form-input-group">
-                                    <label className="block text-sm font-medium text-gray-700">Cost per Meter (₹)</label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        required
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
-                                        value={newFabric.costPerMeter}
-                                        onChange={(e) => setNewFabric({ ...newFabric, costPerMeter: e.target.value })}
-                                    />
-                                </div>
-
-
-                                {/* 5. Length Required Per Outfit */}
-                                <div className="form-input-group">
-                                    <label className="block text-sm font-medium text-gray-700">Length Required per Outfit</label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0.1"
-                                        required
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
-                                        value={newFabric.lengthRequiredPerOutfit}
-                                        onChange={(e) => setNewFabric({ ...newFabric, lengthRequiredPerOutfit: e.target.value })}
-                                    />
-                                    <p className="mt-1 text-xs text-gray-500">Meters to make one average outfit.</p>
-                                </div>
-
-                                {/* Image Capture / Gallery Buttons (Spans full width) */}
-                                <div className="lg:col-span-4 md:col-span-2 form-input-group">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Fabric Image (Choose Option)</label>
-                                    <div className="flex space-x-4">
-                                        {/* Hidden input for camera */}
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            capture="environment"
-                                            ref={cameraInputRef}
-                                            onChange={handleFileChange}
-                                            className="hidden"
-                                        />
-                                        {/* Button to trigger camera */}
-                                        <button
-                                            type="button"
-                                            onClick={() => cameraInputRef.current.click()}
-                                            className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-ruby-red-100 text-dark-red rounded-lg shadow-md hover:bg-ruby-red-100 transition duration-150"
-                                        >
-                                            <Camera className="w-6 h-6" />
-                                            <span className="text-xs mt-1">Take Photo</span>
-                                        </button>
-
-                                        {/* Hidden input for gallery */}
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            ref={galleryInputRef}
-                                            onChange={handleFileChange}
-                                            className="hidden"
-                                        />
-                                        {/* Button to trigger gallery */}
-                                        <button
-                                            type="button"
-                                            onClick={() => galleryInputRef.current.click()}
-                                            className="flex flex-col items-center justify-center p-3 w-32 h-20 bg-gold-100 text-dark-red rounded-lg shadow-md hover:bg-gray-200 transition duration-150"
-                                        >
-                                            <ImageIcon className="w-6 h-6" />
-                                            <span className="text-xs mt-1">Upload from Gallery</span>
-                                        </button>
-                                        <div className="flex flex-col justify-center ml-4">
-                                            {newFabricImageFile && (
-                                                <p className="text-xs text-green-600 font-semibold">
-                                                    File selected: {newFabricImageFile.name}
-                                                    {(newFabricImageFile.size / 1024).toFixed(0) > 750 ?
-                                                        <span className="text-red-600 font-bold ml-2"> (Too Large! Limit 750 KB)</span> : ''
-                                                    }
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        Images are stored in Firebase documents as a Base64 string (Max 750 KB).
-                                    </p>
-                                </div>
-
-                                {/* Submit Button (Spans full width) */}
-                                <div className="lg:col-span-4 md:col-span-2 pt-2 form-input-group">
-                                    <button
-                                        type="submit"
-                                        disabled={isUploading || !db}
-                                        className={`w-full justify-center inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white transition duration-150 ${isUploading ? 'bg-gray-500 cursor-not-allowed' : 'btn-primary'}`}
-                                    >
-                                        {isUploading ? (
-                                            <>
-                                                <span className="spinner mr-2"></span> Uploading...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Plus className="w-5 h-5 mr-2" /> Add Fabric to Stock
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </form>
+                        {/* TAB CONTENT */}
+                        <div className="bg-white rounded-xl rounded-tl-none shadow-lg mb-8 p-0">
+                            {activeTab === 'orders' && renderOrderAssignmentForm()}
+                            {activeTab === 'stock' && renderAddStock()}
                         </div>
 
                         {/* Current Stock List */}
-                        <h2 className="text-3xl font-bold text-gray-900 mb-6">Current Fabric Stock ({fabrics.length} items)</h2>
+                        <h2 className="text-3xl font-bold text-gray-900 mb-6">Inventory Status ({fabrics.length} items)</h2>
 
                         {fabrics.length === 0 ? (
-                            <div className="p-8 text-center bg-white rounded-xl shadow-lg text-gray-500">No fabric stock recorded yet. Use the form above to add an item!</div>
+                            <div className="p-8 text-center bg-white rounded-xl shadow-lg text-gray-500">No fabric stock recorded yet. Use the 'Stock Management' tab to add an item!</div>
                         ) : (
                             <div className="grid grid-cols-1 gap-6">
                                 {fabrics.map((fabric) => (
@@ -1621,25 +2372,53 @@
                                                     </div>
                                                 </div>
 
-                                                {/* 2. Action Buttons */}
+                                                {/* 2. Order Status Display */}
+                                                {fabric.orderWIP && (
+                                                    <div className="text-sm font-semibold p-2 rounded-lg bg-yellow-100 border border-yellow-300 flex items-center justify-between">
+                                                        <span className="text-gray-700 mr-2">WIP Status:</span>
+                                                        <span className="text-gold-600">{fabric.currentOrderStatus}</span>
+                                                    </div>
+                                                )}
+
+                                                {/* 3. Action Buttons */}
                                                 <div className="flex space-x-2">
+
+                                                    {/* VIEW HISTORY BUTTON */}
                                                     <button
                                                         onClick={() => toggleHistory(fabric.id)}
-                                                        className={`flex-1 px-4 py-2 rounded-md font-medium transition duration-150 shadow-md flex items-center justify-center ${historyFabricId === fabric.id ? 'bg-ruby-red-800 text-white btn-primary' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
+                                                        className={`flex-1 px-4 py-2 rounded-md font-medium transition duration-150 shadow-md flex items-center justify-center ${historyFabricId === fabric.id ? 'btn-primary text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
                                                     >
                                                         {historyFabricId === fabric.id ? 'Hide History' : 'View History'}
                                                     </button>
 
+                                                    {/* ADD STOCK BUTTON */}
                                                     <button
-                                                        onClick={() => {
-                                                            setUpdateFabricId(fabric.id);
-                                                            setHistoryFabricId(null); // Hide history when updating
-                                                        }}
-                                                        className={`flex-1 btn-secondary text-gray-900 px-4 py-2 rounded-md font-medium transition duration-150 shadow-md ${updateFabricId === fabric.id ? 'bg-gray-400' : ''}`}
-                                                        disabled={updateFabricId === fabric.id}
+                                                        onClick={() => openAdjustmentModal(fabric.id, 'ADD')}
+                                                        className={`bg-green-100 text-green-600 px-4 py-2 rounded-md font-medium transition duration-150 shadow-md hover:bg-green-200`}
                                                     >
-                                                        Update Stock
+                                                        Add Stock Back
                                                     </button>
+
+                                                    {/* DEDUCT STOCK BUTTON */}
+                                                    <button
+                                                        onClick={() => openAdjustmentModal(fabric.id, 'DEDUCT')}
+                                                        className={`btn-secondary text-white px-4 py-2 rounded-md font-medium transition duration-150 shadow-md`}
+                                                    >
+                                                        Use Stock (Deduct)
+                                                    </button>
+
+                                                    {/* COMPLETE ORDER BUTTON (Visible if WIP) */}
+                                                    {fabric.orderWIP && fabric.lastOrderNumber && (
+                                                        <button
+                                                            onClick={() => handleCompleteOrder(fabric.id, fabric.lastOrderNumber)}
+                                                            className="p-3 bg-green-100 text-green-600 rounded-md hover:bg-green-200 transition duration-150"
+                                                            title={`Mark Order #${fabric.lastOrderNumber} Complete`}
+                                                        >
+                                                            <CheckCircle className="w-5 h-5" />
+                                                        </button>
+                                                    )}
+
+                                                    {/* DELETE BUTTON */}
                                                     <button
                                                         onClick={() => handleDeleteFabric(fabric.id)}
                                                         className="p-3 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition duration-150"
@@ -1651,139 +2430,46 @@
                                             </div>
                                         </div>
 
-                                        {/* History View or Update Form Container */}
-                                        {(updateFabricId === fabric.id || historyFabricId === fabric.id) && (
+                                        {/* History View Container */}
+                                        {historyFabricId === fabric.id && (
                                             <div className="w-full pt-4 border-t border-gray-200 mt-4 relative z-10">
-                                                {updateFabricId === fabric.id && (
-                                                    <div className="bg-white p-4 rounded-lg shadow-inner">
-                                                        <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Scissors className="w-5 h-5 mr-2 text-gold-600" /> Log Stock Reduction</h4>
-                                                        <form onSubmit={handleUpdateStock} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="bg-white p-4 rounded-lg shadow-inner">
+                                                    <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Clock className="w-5 h-5 mr-2 text-ruby-red" /> Usage History ({transactionHistory.length} logs)</h4>
 
-                                                            {/* Row 1: Amount Used */}
-                                                            <div className="md:col-span-2 form-input-group">
-                                                                <label className="block text-sm font-medium text-gray-700">Amount Used ({fabric.unit})</label>
-                                                                <input
-                                                                    type="number"
-                                                                    step="0.01"
-                                                                    min="0.01"
-                                                                    required
-                                                                    placeholder={`Enter amount used (e.g., ${fabric.lengthRequiredPerOutfit.toFixed(2)})`}
-                                                                    className="w-full p-2 border border-yellow-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
-                                                                    value={updateAmountUsed}
-                                                                    onChange={(e) => setUpdateAmountUsed(e.target.value)}
-                                                                />
-                                                            </div>
+                                                    {transactionHistory.length === 0 ? (
+                                                        <p className="text-sm text-gray-500 ml-2">No usage logs found for this fabric.</p>
+                                                    ) : (
+                                                        <div className="space-y-2">
+                                                            {transactionHistory.map((tx) => (
+                                                                <div key={tx.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                                                    {/* Summary Bar */}
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => toggleTransactionDetails(tx.id)}
+                                                                        className="w-full flex justify-between items-center p-3 text-left hover:bg-gray-50 transition duration-100"
+                                                                    >
+                                                                        <div className="flex items-center text-sm font-semibold">
+                                                                            <span className="text-ruby-red mr-3">{tx.orderNumber || 'N/A'}</span>
+                                                                            <span className="text-red-600 mr-3 font-extrabold">-{tx.amountUsed.toFixed(2)} {fabric.unit}</span>
+                                                                            <span className="text-gray-500 font-normal flex items-center"><Clock className="w-4 h-4 mr-1 ml-2" /> {formatTimestamp(tx.usedAt)}</span>
+                                                                        </div>
+                                                                        {expandedTransactionId === tx.id ? <ChevronDown className="w-5 h-5 text-gray-600" /> : <ChevronRight className="w-5 h-5 text-gray-600" />}
+                                                                    </button>
 
-                                                            {/* Row 2: Order Details */}
-                                                            <div className="form-input-group">
-                                                                <label className="block text-sm font-medium text-gray-700 flex items-center"><Hash className="w-4 h-4 mr-1" /> Order Number</label>
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder="Order # (e.g., 1002)"
-                                                                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                                                                    value={updateOrderNumber}
-                                                                    onChange={(e) => setUpdateOrderNumber(e.target.value)}
-                                                                />
-                                                            </div>
-                                                            <div className="form-input-group">
-                                                                <label className="block text-sm font-medium text-gray-700 flex items-center"><User className="w-4 h-4 mr-1" /> Customer Name</label>
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder="Customer Name"
-                                                                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                                                                    value={updateCustomerName}
-                                                                    onChange={(e) => setUpdateCustomerName(e.target.value)}
-                                                                />
-                                                            </div>
-
-                                                            {/* Row 3: Product Details (For Auditing) */}
-                                                            <div className="form-input-group">
-                                                                <label className="block text-sm font-medium text-gray-700 flex items-center"><Tag className="w-4 h-4 mr-1" /> Product Name (Output)</label>
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder="Product (e.g., Blazer)"
-                                                                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                                                                    value={updateProductName}
-                                                                    onChange={(e) => setUpdateProductName(e.target.value)}
-                                                                />
-                                                            </div>
-                                                            <div className="form-input-group">
-                                                                <label className="block text-sm font-medium text-gray-700">Size/Notes</label>
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder="Size (e.g., L) or specific notes"
-                                                                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                                                                    value={updateSize}
-                                                                    onChange={(e) => setUpdateSize(e.target.value)}
-                                                                />
-                                                            </div>
-
-                                                            {/* Action Buttons */}
-                                                            <div className="md:col-span-2 flex space-x-2 mt-3">
-                                                                <button
-                                                                    type="submit"
-                                                                    className="flex-1 btn-secondary text-gray-900 px-4 py-2 rounded-md font-medium transition duration-150"
-                                                                >
-                                                                    Update Stock
-                                                                </button>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        setUpdateFabricId(null);
-                                                                        setUpdateAmountUsed('');
-                                                                        setUpdateOrderNumber('');
-                                                                        setUpdateProductName('');
-                                                                        setUpdateSize('');
-                                                                        setUpdateCustomerName('');
-                                                                        setOperationalError(null);
-                                                                    }}
-                                                                    className="bg-gray-300 text-gray-800 px-3 py-2 rounded-md font-medium hover:bg-gray-400 transition duration-150"
-                                                                >
-                                                                    Cancel
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                )}
-
-                                                {historyFabricId === fabric.id && (
-                                                    <div className="bg-white p-4 rounded-lg shadow-inner">
-                                                        <h4 className="text-lg font-semibold text-gray-700 mb-3 flex items-center"><Clock className="w-5 h-5 mr-2 text-ruby-red" /> Usage History ({transactionHistory.length} logs)</h4>
-
-                                                        {transactionHistory.length === 0 ? (
-                                                            <p className="text-sm text-gray-500 ml-2">No usage logs found for this fabric.</p>
-                                                        ) : (
-                                                            <div className="space-y-2">
-                                                                {transactionHistory.map((tx) => (
-                                                                    <div key={tx.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                                                        {/* Summary Bar */}
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => toggleTransactionDetails(tx.id)}
-                                                                            className="w-full flex justify-between items-center p-3 text-left hover:bg-gray-50 transition duration-100"
-                                                                        >
-                                                                            <div className="flex items-center text-sm font-semibold">
-                                                                                <span className="text-ruby-red mr-3">{tx.orderNumber || 'N/A'}</span>
-                                                                                <span className="text-red-600 mr-3 font-extrabold">-{tx.amountUsed.toFixed(2)} {fabric.unit}</span>
-                                                                                <span className="text-gray-500 font-normal flex items-center"><Clock className="w-4 h-4 mr-1 ml-2" /> {formatTimestamp(tx.usedAt)}</span>
-                                                                            </div>
-                                                                            {expandedTransactionId === tx.id ? <ChevronDown className="w-5 h-5 text-gray-600" /> : <ChevronRight className="w-5 h-5 text-gray-600" />}
-                                                                        </button>
-
-                                                                        {/* Expanded Details */}
-                                                                        {expandedTransactionId === tx.id && (
-                                                                            <div className="p-3 pt-0 border-t border-gray-200 bg-gray-50 text-xs space-y-1">
-                                                                                <p><span className="font-semibold text-gray-700">Product:</span> {tx.productName || 'N/A'} (Size: {tx.size || 'N/A'})</p>
-                                                                                <p><span className="font-semibold text-gray-700">Customer:</span> {tx.customerName || 'N/A'}</p>
-                                                                                <p><span className="font-semibold text-gray-700">Logged By:</span> {tx.usedByEmail || 'N/A'} at {formatTimestamp(tx.usedAt, true)}</p>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
+                                                                    {/* Expanded Details */}
+                                                                    {expandedTransactionId === tx.id && (
+                                                                        <div className="p-3 pt-0 border-t border-gray-200 bg-gray-50 text-xs space-y-1">
+                                                                            <p><span className="font-semibold text-gray-700">Product:</span> {tx.productName || 'N/A'} (Size: {tx.size || 'N/A'})</p>
+                                                                            <p><span className="font-semibold text-gray-700">Customer:</span> {tx.customerName || 'N/A'}</p>
+                                                                            <p><span className="font-semibold text-gray-700">Order Status at Cut:</span> {tx.status || 'N/A'}</p>
+                                                                            <p><span className="font-semibold text-gray-700">Logged By:</span> {tx.usedByEmail || 'N/A'} at {formatTimestamp(tx.usedAt, true)}</p>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         )}
 
