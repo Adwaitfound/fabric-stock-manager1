@@ -857,6 +857,8 @@
         const X = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
         const ListOrdered = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1"></path><path d="M3 12h2"></path><path d="M4 18h1"></path></svg>;
         const DollarSign = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>;
+        const Edit = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>; // New Icon
+        const Filter = (props) => <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>; // New Icon
 
 
         // --- CONSTANTS ---
@@ -926,9 +928,11 @@
             // NEW STATE FOR IMAGE MODAL
             const [selectedImageUrl, setSelectedImageUrl] = useState(null);
 
-
             // NEW STATE FOR TABS
             const [activeTab, setActiveTab] = useState('orders'); // Default to Order Assignment
+
+            // NEW STATE FOR INVENTORY SORTING (ADDED)
+            const [sortKey, setSortKey] = useState('name'); // 'name', 'currentLength', 'potentialOutfits'
 
             // Refs for hidden file inputs
             const cameraInputRef = useRef(null);
@@ -961,6 +965,9 @@
             const [adjustmentType, setAdjustmentType] = useState(null); // 'ADD' or 'DEDUCT'
             const [adjustmentFabricId, setAdjustmentFabricId] = useState(null); // Fabric ID for modal
             const [adjustmentAmount, setAdjustmentAmount] = useState(''); // Amount input for modal
+
+            // NEW STATE: Inline confirmation for order reversion
+            const [revertConfirmationId, setRevertConfirmationId] = useState(null);
 
             // State for viewing history
             const [historyFabricId, setHistoryFabricId] = useState(null);
@@ -998,6 +1005,36 @@
                         return timeB - timeA;
                     });
             }, [fabrics]);
+
+
+            // MEMOIZED LIST FOR MAIN INVENTORY SORTING (ADDED)
+            const sortedFabrics = useMemo(() => {
+                if (!Array.isArray(fabrics)) return [];
+
+                // Create a shallow copy for sorting
+                const sortableList = [...fabrics];
+
+                sortableList.sort((a, b) => {
+                    if (sortKey === 'name') {
+                        const nameA = a.name.toUpperCase();
+                        const nameB = b.name.toUpperCase();
+                        if (nameA < nameB) return -1;
+                        if (nameA > nameB) return 1;
+                        return 0;
+                    }
+                    // Numerical sorts (Descending: largest remaining/potential first)
+                    if (sortKey === 'currentLength') {
+                        return b.currentLength - a.currentLength;
+                    }
+                    if (sortKey === 'potentialOutfits') {
+                        return b.potentialOutfits - a.potentialOutfits;
+                    }
+                    return 0; // Default: no change
+                });
+
+                return sortableList;
+            }, [fabrics, sortKey]);
+
 
             // --- NEW FINANCIAL METRICS ---
             const financialMetrics = useMemo(() => {
@@ -1325,6 +1362,10 @@
                 }
             };
 
+            /**
+             * Handles assigning a new order OR re-assigning/editing an existing WIP order.
+             * It uses the fabric's currentLength and lastAmountUsed to correct stock if it was an update.
+             */
             const handleOrderAssignment = async (e) => {
                 e.preventDefault();
 
@@ -1338,17 +1379,26 @@
                 }
 
                 const fabric = fabrics.find(f => f.id === fabricId);
-                const amountUsed = parseFloat(lengthToCut);
+                const newAmountUsed = parseFloat(lengthToCut);
 
-                if (!fabric || isNaN(amountUsed) || amountUsed <= 0) {
+                if (!fabric || isNaN(newAmountUsed) || newAmountUsed <= 0) {
                     setOperationalError("Invalid fabric selection or amount to cut.");
                     return;
                 }
 
+                // 1. Calculate Adjustment for Re-assignment/Edit
+                const isReassigning = fabric.lastOrderNumber === (ORDER_PREFIX + orderNumber);
+                const oldAmountUsed = isReassigning ? (fabric.lastAmountUsed || 0) : 0;
+
+                // Effective Change in Length = New Cut - Old Cut (if re-assigning)
+                const effectiveLengthChange = newAmountUsed - oldAmountUsed;
+
+                // New stock = Current Stock + Old Cut - New Cut
+                const newCurrentLength = fabric.currentLength + oldAmountUsed - newAmountUsed;
+
                 // --- Stock Check ---
-                const newCurrentLength = fabric.currentLength - amountUsed;
                 if (newCurrentLength < 0) {
-                    setOperationalError(`Cannot cut ${amountUsed} ${fabric.unit}. Only ${fabric.currentLength.toFixed(2)} ${fabric.unit} remaining.`);
+                    setOperationalError(`Cannot proceed. Cutting ${newAmountUsed} ${fabric.unit} would leave insufficient stock. Remaining available stock: ${(fabric.currentLength + oldAmountUsed).toFixed(2)} ${fabric.unit}.`);
                     return;
                 }
 
@@ -1361,7 +1411,7 @@
 
                     // 1. ADD NEW TRANSACTION (HISTORY)
                     const transactionData = {
-                        amountUsed: amountUsed,
+                        amountUsed: newAmountUsed,
                         orderNumber: finalOrderNumber,
                         productName: outputStyle || 'N/A',
                         size: size || 'M',
@@ -1369,6 +1419,8 @@
                         status: statusSentToTailor, // Status at cut time
                         usedByEmail: userEmail,
                         usedAt: serverTimestamp(),
+                        type: isReassigning ? 'REASSIGN' : 'CUT',
+                        effectiveLengthChange: -effectiveLengthChange, // Log the net change for clarity
                     };
                     await addDoc(collection(fabricDocRef, 'history'), transactionData);
 
@@ -1380,19 +1432,19 @@
                         lastOrderNumber: finalOrderNumber,
                         lastProductName: transactionData.productName,
                         lastCustomerName: transactionData.customerName,
-                        lastAmountUsed: transactionData.amountUsed,
+                        lastAmountUsed: newAmountUsed, // Store the new amount used
                         updatedByEmail: userEmail,
                         updatedAt: serverTimestamp(),
                     };
 
                     await setDoc(fabricDocRef, updateData, { merge: true });
 
-                    // 3. PUSH TO GOOGLE SHEET
+                    // 3. PUSH TO GOOGLE SHEET (Log the net change)
                     pushToGoogleSheet({
                         fabricName: fabric.name,
                         websiteProductName: fabric.websiteProductName,
-                        type: 'USE',
-                        length: -amountUsed,
+                        type: isReassigning ? 'REASSIGN/EDIT' : 'USE',
+                        length: -effectiveLengthChange, // Log the net change for stock log
                         unit: fabric.unit,
                         cost: fabric.costPerMeter,
                         orderNumber: finalOrderNumber,
@@ -1409,11 +1461,137 @@
                         outputStyle: '',
                         size: 'M',
                     });
-                    setOperationalError(null);
+                    setOperationalError(isReassigning ? `Order ${finalOrderNumber} successfully re-assigned/edited.` : `Order ${finalOrderNumber} successfully cut and assigned to WIP.`);
 
                 } catch (e) {
                     console.error("Error assigning order: ", e);
                     setOperationalError(`Failed to assign order: ${e.message}.`);
+                }
+            };
+
+            /**
+             * Utility function to pre-fill the order form for editing/re-assignment
+             */
+            const handleStartReassignment = (fabric) => {
+                // Remove prefix for display in the orderNumber input
+                const displayOrderNumber = fabric.lastOrderNumber.startsWith(ORDER_PREFIX)
+                    ? fabric.lastOrderNumber.substring(ORDER_PREFIX.length)
+                    : fabric.lastOrderNumber;
+
+                setOrderForm({
+                    orderNumber: displayOrderNumber,
+                    fabricId: fabric.id,
+                    lengthToCut: (fabric.lastAmountUsed || '').toString(),
+                    customerName: fabric.lastCustomerName || '',
+                    outputStyle: fabric.lastProductName || '',
+                    size: fabric.size || 'M',
+                });
+                setActiveTab('orders');
+                setOperationalError(`Editing Order ${displayOrderNumber}. Adjust fields and re-submit to update.`);
+            }
+
+
+            /**
+             * Reverts a WIP order: adds the last cut amount back to stock and clears WIP fields.
+             */
+            const handleRevertWIP = async (fabricId) => {
+                if (!db || !userId) return;
+
+                const fabric = fabrics.find(f => f.id === fabricId);
+                if (!fabric) {
+                    setOperationalError("Fabric not found.");
+                    setRevertConfirmationId(null);
+                    return;
+                }
+
+                const amountToReturn = fabric.lastAmountUsed;
+                const { currentLength, unit, lastOrderNumber, lastCustomerName, websiteProductName, costPerMeter } = fabric;
+
+                if (!lastOrderNumber || amountToReturn === null) {
+                    setOperationalError("Cannot revert: No active WIP order found for this fabric.");
+                    setRevertConfirmationId(null);
+                    return;
+                }
+
+                // FIX: Use the lastAmountUsed (the amount cut) to determine the return amount.
+                const newCurrentLength = currentLength + amountToReturn;
+
+                try {
+                    const fabricDocRef = doc(db, COLLECTION_PATH, fabricId);
+
+                    // 1. Revert MAIN DOCUMENT (Increase stock, clear WIP fields)
+                    const updateData = {
+                        currentLength: newCurrentLength,
+                        currentOrderStatus: 'Reverted / Cancelled', // Set a clear status
+                        lastOrderNumber: null, // Clear order association
+                        lastProductName: null,
+                        lastCustomerName: null,
+                        lastAmountUsed: null,
+                        finalSellingPrice: null,
+                        updatedByEmail: userEmail,
+                        updatedAt: serverTimestamp(),
+                    };
+
+                    await setDoc(fabricDocRef, updateData, { merge: true });
+
+                    // 2. Add NEW TRANSACTION to History (Record the Revert)
+                    const transactionData = {
+                        amountUsed: -amountToReturn, // Log negative amount used to indicate stock return
+                        orderNumber: `REVERT-${lastOrderNumber}`,
+                        productName: 'Order Reversion/Cancellation',
+                        customerName: lastCustomerName,
+                        status: 'Reverted / Cancelled',
+                        usedByEmail: userEmail,
+                        usedAt: serverTimestamp(),
+                        type: 'REVERT', // Custom field for easier history filtering later
+                    };
+                    await addDoc(collection(fabricDocRef, 'history'), transactionData);
+
+                    // 3. PUSH TO GOOGLE SHEET (Revert entry)
+                    pushToGoogleSheet({
+                        fabricName: fabric.name,
+                        websiteProductName: websiteProductName,
+                        type: 'REVERT',
+                        length: amountToReturn, // Log positive value for return
+                        unit: unit,
+                        cost: costPerMeter,
+                        orderNumber: lastOrderNumber,
+                        customerName: lastCustomerName || 'N/A',
+                        loggedBy: userEmail
+                    });
+
+                    setOperationalError(`Successfully reverted Order ${lastOrderNumber}. ${amountToReturn.toFixed(2)} ${unit} added back to stock.`);
+                    setRevertConfirmationId(null); // Clear confirmation state
+                    setSellingPrice('');
+
+                } catch (e) {
+                    console.error("Error reverting order: ", e);
+                    setOperationalError(`Failed to revert order: ${e.message}.`);
+                    setRevertConfirmationId(null);
+                }
+            };
+
+            /**
+             * Deletes a specific log entry from the fabric's history subcollection.
+             * NOTE: This does NOT automatically adjust stock.
+             */
+            const handleDeleteHistoryLog = async (fabricId, transactionId) => {
+                if (!db || !userId) return;
+
+                // Simple in-line check since custom modals are complex
+                const shouldDelete = window.confirm("Are you sure you want to delete this specific log entry? NOTE: This action DOES NOT automatically adjust stock levels. You must use the manual ADD/DEDUCT feature if a stock correction is needed.");
+
+                if (!shouldDelete) {
+                    return;
+                }
+
+                try {
+                    const historyDocRef = doc(db, COLLECTION_PATH, fabricId, 'history', transactionId);
+                    await deleteDoc(historyDocRef);
+                    setOperationalError("History log successfully deleted. Remember to manually adjust stock if necessary.");
+                } catch (e) {
+                    console.error("Error deleting history log: ", e);
+                    setOperationalError(`Failed to delete history log: ${e.message}.`);
                 }
             };
 
@@ -1474,6 +1652,7 @@
                         status: transactionType,
                         usedByEmail: userEmail,
                         usedAt: serverTimestamp(),
+                        type: isAddition ? 'ADJUST_ADD' : 'ADJUST_DEDUCT', // Custom field for type
                     };
                     await addDoc(collection(fabricDocRef, 'history'), transactionData);
 
@@ -1558,6 +1737,7 @@
                         usedByEmail: userEmail,
                         usedAt: serverTimestamp(),
                         finalSellingPrice: price,
+                        type: 'STATUS_CHANGE',
                     };
                     await addDoc(collection(fabricDocRef, 'history'), transactionData);
 
@@ -1890,6 +2070,7 @@
 
                     // Check if the current fabric is the one we are setting a price for
                     const isReceiving = adjustmentFabricId === fabric.id && status === 'Sent to Tailor';
+                    const isReverting = revertConfirmationId === fabric.id;
 
                     return (
                         <div key={fabric.id} className={`p-4 border rounded-lg shadow-sm ${status === 'Sent to Tailor' ? 'bg-yellow-50 border-yellow-300' : 'bg-green-100 border-green-600'}`}>
@@ -1901,9 +2082,45 @@
                             <p className="text-sm text-gray-600">Customer: {fabric.lastCustomerName || 'N/A'}</p>
                             <p className="text-sm text-gray-600 mb-3">Amount Cut: <span className="text-dark-red font-semibold">{fabric.lastAmountUsed?.toFixed(2)} {fabric.unit}</span></p>
 
+                            <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200">
+                                {/* Revert Button Logic */}
+                                {isReverting ? (
+                                    <div className="flex space-x-2 bg-red-100 p-2 rounded-md border border-red-300">
+                                        <p className="text-sm font-semibold text-red-700 flex-1">Confirm Revert? Adds {fabric.lastAmountUsed.toFixed(2)} {fabric.unit} back to stock.</p>
+                                        <button
+                                            onClick={() => handleRevertWIP(fabric.id)}
+                                            className="px-3 py-1 bg-red-600 text-white rounded-md font-medium hover:bg-red-700 transition duration-150 text-sm"
+                                        >
+                                            YES, REVERT
+                                        </button>
+                                        <button
+                                            onClick={() => setRevertConfirmationId(null)}
+                                            className="px-3 py-1 bg-gray-400 text-gray-800 rounded-md font-medium hover:bg-gray-500 transition duration-150 text-sm"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={() => setRevertConfirmationId(fabric.id)}
+                                            className="w-full bg-red-500 text-white px-3 py-2 rounded-md font-medium hover:bg-red-600 transition duration-150"
+                                        >
+                                            REVERT / Cancel Order
+                                        </button>
+                                        <button
+                                            onClick={() => handleStartReassignment(fabric)}
+                                            className="w-full bg-dark-contrast text-white px-3 py-2 rounded-md font-medium hover:bg-gray-700 transition duration-150 flex items-center justify-center"
+                                        >
+                                            <Edit className="w-4 h-4 mr-2" /> Re-Assign / Edit Order
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+
                             {status === 'Sent to Tailor' && (
                                 isReceiving ? (
-                                    <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200">
+                                    <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200 mt-2">
                                         <input
                                             type="number"
                                             step="0.01"
@@ -1932,7 +2149,7 @@
                                     </div>
                                 ) : (
                                     <button
-                                        onClick={() => setAdjustmentFabricId(fabric.id)}
+                                        onClick={() => { setAdjustmentFabricId(fabric.id); setRevertConfirmationId(null); }}
                                         className="w-full bg-dark-contrast text-white px-3 py-2 rounded-md font-medium hover:bg-gray-700 transition duration-150 mt-2"
                                     >
                                         Mark Received from Tailor
@@ -2026,6 +2243,11 @@
                                     </option>
                                 ))}
                             </select>
+                            {orderForm.fabricId && (
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Selected Fabric ID: <span className="font-mono text-xs">{orderForm.fabricId.substring(0, 8)}...</span>
+                                </p>
+                            )}
                         </div>
 
                         {/* 3. Length to Cut */}
@@ -2481,13 +2703,31 @@
                         </div>
 
                         {/* Current Stock List */}
-                        <h2 className="text-3xl font-bold text-gray-900 mb-6">Inventory Status ({fabrics.length} items)</h2>
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-3xl font-bold text-gray-900">Inventory Status ({fabrics.length} items)</h2>
 
-                        {fabrics.length === 0 ? (
+                            {/* Sorting Dropdown (ADDED) */}
+                            <div className="flex items-center space-x-2">
+                                <Filter className="w-5 h-5 text-gray-600" />
+                                <label htmlFor="sort-inventory" className="text-sm font-medium text-gray-700 hidden sm:inline">Sort By:</label>
+                                <select
+                                    id="sort-inventory"
+                                    className="p-2 border border-gray-300 rounded-md shadow-sm text-sm"
+                                    value={sortKey}
+                                    onChange={(e) => setSortKey(e.target.value)}
+                                >
+                                    <option value="name">Alphabetical (A-Z)</option>
+                                    <option value="currentLength">Remaining Stock (High to Low)</option>
+                                    <option value="potentialOutfits">Potential Outfits (High to Low)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {sortedFabrics.length === 0 ? (
                             <div className="p-8 text-center bg-white rounded-xl shadow-lg text-gray-500">No fabric stock recorded yet. Use the 'Stock Management' tab to add an item!</div>
                         ) : (
                             <div className="grid grid-cols-1 gap-6">
-                                {fabrics.map((fabric) => {
+                                {sortedFabrics.map((fabric) => {
                                     const isWIPActive = fabric.lastOrderNumber && fabric.currentOrderStatus !== 'Order Shipped (Completed)';
                                     return (
                                         <div key={fabric.id} className="card bg-white p-5 rounded-xl shadow-md flex flex-col space-y-4">
@@ -2619,27 +2859,50 @@
                                                                 {transactionHistory.map((tx) => (
                                                                     <div key={tx.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                                                                         {/* Summary Bar */}
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => toggleTransactionDetails(tx.id)}
-                                                                            className="w-full flex justify-between items-center p-3 text-left hover:bg-gray-50 transition duration-100"
-                                                                        >
-                                                                            <div className="flex items-center text-sm font-semibold">
-                                                                                <span className="text-ruby-red mr-3">{tx.orderNumber || 'N/A'}</span>
-                                                                                {tx.amountUsed > 0 && (
-                                                                                    <span className="text-red-600 mr-3 font-extrabold">-{tx.amountUsed.toFixed(2)} {fabric.unit}</span>
-                                                                                )}
-                                                                                <span className="text-gray-500 font-normal flex items-center"><Clock className="w-4 h-4 mr-1 ml-2" /> {formatTimestamp(tx.usedAt)}</span>
-                                                                            </div>
-                                                                            {expandedTransactionId === tx.id ? <ChevronDown className="w-5 h-5 text-gray-600" /> : <ChevronRight className="w-5 h-5 text-gray-600" />}
-                                                                        </button>
+                                                                        <div className="w-full flex justify-between items-center p-3 text-left">
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => toggleTransactionDetails(tx.id)}
+                                                                                className="flex-1 flex justify-start items-center text-left hover:bg-gray-50 transition duration-100"
+                                                                            >
+                                                                                <div className="flex items-center text-sm font-semibold">
+                                                                                    <span className="text-ruby-red mr-3">{tx.orderNumber || 'N/A'}</span>
+                                                                                    {tx.amountUsed > 0 && tx.type === 'CUT' && (
+                                                                                        <span className="text-red-600 mr-3 font-extrabold">-{tx.amountUsed.toFixed(2)} {fabric.unit}</span>
+                                                                                    )}
+                                                                                    {tx.type === 'REVERT' && (
+                                                                                        <span className="text-green-600 mr-3 font-extrabold">+{Math.abs(tx.amountUsed).toFixed(2)} {fabric.unit} (Revert)</span>
+                                                                                    )}
+                                                                                    {tx.type === 'ADJUST_ADD' && (
+                                                                                        <span className="text-green-600 mr-3 font-extrabold">+{tx.amountUsed.toFixed(2)} {fabric.unit} (Manual Add)</span>
+                                                                                    )}
+                                                                                    {tx.type === 'ADJUST_DEDUCT' && (
+                                                                                        <span className="text-red-600 mr-3 font-extrabold">-{tx.amountUsed.toFixed(2)} {fabric.unit} (Manual Deduct)</span>
+                                                                                    )}
+                                                                                    {tx.type === 'REASSIGN' && (
+                                                                                        <span className="text-gold-600 mr-3 font-extrabold">{tx.effectiveLengthChange > 0 ? `-${Math.abs(tx.effectiveLengthChange).toFixed(2)}` : `+${Math.abs(tx.effectiveLengthChange).toFixed(2)}`} {fabric.unit} (Re-Assign)</span>
+                                                                                    )}
+                                                                                    <span className="text-gray-500 font-normal flex items-center"><Clock className="w-4 h-4 mr-1 ml-2" /> {formatTimestamp(tx.usedAt)}</span>
+                                                                                </div>
+                                                                                {expandedTransactionId === tx.id ? <ChevronDown className="w-5 h-5 text-gray-600" /> : <ChevronRight className="w-5 h-5 text-gray-600" />}
+                                                                            </button>
+
+                                                                            {/* Delete Log Button */}
+                                                                            <button
+                                                                                onClick={() => handleDeleteHistoryLog(fabric.id, tx.id)}
+                                                                                className="p-1 ml-3 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition duration-150"
+                                                                                title="Delete this specific log entry (Does not affect stock)"
+                                                                            >
+                                                                                <Trash2 className="w-4 h-4" />
+                                                                            </button>
+                                                                        </div>
 
                                                                         {/* Expanded Details */}
                                                                         {expandedTransactionId === tx.id && (
                                                                             <div className="p-3 pt-0 border-t border-gray-200 bg-gray-50 text-xs space-y-1">
                                                                                 <p><span className="font-semibold text-gray-700">Product:</span> {tx.productName || 'N/A'} (Size: {tx.size || 'N/A'})</p>
                                                                                 <p><span className="font-semibold text-gray-700">Customer:</span> {tx.customerName || 'N/A'}</p>
-                                                                                <p><span className="font-semibold text-gray-700">Order Status at Cut:</span> {tx.status || 'N/A'}</p>
+                                                                                <p><span className="font-semibold text-gray-700">Order Status at Log:</span> {tx.status || 'N/A'}</p>
                                                                                 <p><span className="font-semibold text-gray-700">Logged By:</span> {tx.usedByEmail || 'N/A'} at {formatTimestamp(tx.usedAt, true)}</p>
                                                                             </div>
                                                                         )}
