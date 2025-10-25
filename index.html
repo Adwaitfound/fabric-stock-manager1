@@ -259,6 +259,11 @@
             width: 5rem;
         }
 
+        /* ADDED: For compact WIP image */
+        .w-10 {
+            width: 2.5rem;
+        }
+
         .h-4 {
             height: 1rem;
         }
@@ -273,6 +278,21 @@
 
         .h-8 {
             height: 2rem;
+        }
+
+        /* ADDED: For compact WIP image */
+        .h-10 {
+            height: 2.5rem;
+        }
+
+        /* ADDED: For rectangular WIP image */
+        .h-12 {
+            height: 3rem;
+        }
+
+        /* ADDED: For rectangular WIP image */
+        .h-24 {
+            height: 6rem;
         }
 
         .h-20 {
@@ -2125,14 +2145,44 @@
                     const isReverting = revertConfirmationId === fabric.id;
 
                     return (
-                        <div key={fabric.id} className={`p-4 border rounded-lg shadow-sm ${status === 'Sent to Tailor' ? 'bg-yellow-50 border-yellow-300' : 'bg-green-100 border-green-600'}`}>
+                        // ADDED: mb-6 to ensure a clear gap between cards
+                        <div key={fabric.id} className={`p-4 border rounded-xl shadow-sm mb-4 ${status === 'Sent to Tailor' ? 'bg-yellow-50 border-yellow-300' : 'bg-green-100 border-green-600'}`}>
+
+                            {/* 1. Order Number and Status (Text) */}
                             <div className="flex justify-between items-center mb-2">
                                 <h4 className="font-bold text-gray-800">{fabric.lastOrderNumber || 'Order N/A'}</h4>
                                 <span className={`text-sm font-semibold p-1 rounded-md ${status === 'Sent to Tailor' ? 'text-gold-600 bg-yellow-200' : 'text-green-800 bg-green-200'}`}>{fabric.currentOrderStatus}</span>
                             </div>
-                            <p className="text-sm font-semibold text-gray-800 mb-2">Fabric: {fabric.name}</p>
-                            <p className="text-sm text-gray-600">Customer: {fabric.lastCustomerName || 'N/A'}</p>
-                            <p className="text-sm text-gray-600 mb-3">Amount Cut: <span className="text-dark-red font-semibold">{fabric.lastAmountUsed?.toFixed(2)} {fabric.unit}</span></p>
+
+                            {/* --- New Image Placement: Square Thumbnail on Left --- */}
+                            {/* Uses flex for side-by-side layout that collapses well on mobile */}
+                            <div className="flex items-start mb-3">
+                                <button
+                                    onClick={() => setSelectedImageUrl(fabric.imageUrl)}
+                                    className="flex-shrink-0 mr-3 cursor-pointer"
+                                    title="View Fabric Image"
+                                >
+                                    <img
+                                        src={fabric.imageUrl}
+                                        alt={fabric.name}
+                                        className="w-10 h-10 object-cover rounded-md border border-gray-300" // w-10 h-10 is 40px square
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            // Fallback placeholder text for square ratio
+                                            e.target.src = `https://placehold.co/40x40/880000/ffffff?text=${(fabric.name || 'F').substring(0, 1).toUpperCase()}`;
+                                        }}
+                                    />
+                                </button>
+
+                                {/* 2. Fabric Details Text Block */}
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-base font-semibold text-gray-800 mb-1 leading-tight">Fabric: {fabric.name}</p>
+                                    <p className="text-sm text-gray-600 leading-tight">Customer: {fabric.lastCustomerName || 'N/A'}</p>
+                                    <p className="text-sm text-gray-600 leading-tight">Amount Cut: <span className="text-dark-red font-semibold">{fabric.lastAmountUsed?.toFixed(2)} {fabric.unit}</span></p>
+                                </div>
+                            </div>
+                            {/* --- END New Image Placement --- */}
+
 
                             <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200">
                                 {/* Revert Button Logic */}
@@ -2236,6 +2286,7 @@
                                 <h4 className="text-xl font-semibold text-gray-700 mb-3 border-b pb-1 flex justify-between items-center">
                                     <span>Status 1: Sent to Tailor ({totalOrdersSentToTailor} Orders)</span>
                                 </h4>
+                                {/* Ensure vertical gap between cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                                     {ordersSentToTailor.length > 0 ? (
                                         ordersSentToTailor.map(f => renderOrderItemCard(f, 'Sent to Tailor'))
@@ -2248,6 +2299,7 @@
                                 <h4 className="text-xl font-semibold text-gray-700 mb-3 border-b pb-1 flex justify-between items-center">
                                     <span>Status 2: Received from Tailor (Ready to Ship) ({totalOrdersReceived} Orders)</span>
                                 </h4>
+                                {/* Ensure vertical gap between cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {ordersReceivedFromTailor.length > 0 ? (
                                         ordersReceivedFromTailor.map(f => renderOrderItemCard(f, 'Received from Tailor'))
@@ -2640,6 +2692,7 @@
                         )}
 
                         {/* Global Stats */}
+                        {/* Adjusted for mobile: grid-cols-1, md:grid-cols-2, lg:grid-cols-4 */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 
                             {/* 1. Total Fabrics Card */}
@@ -2715,8 +2768,8 @@
                             </div>
                         </div>
 
-                        {/* TAB BAR */}
-                        <div className="flex mb-0 -space-x-1">
+                        {/* TAB BAR - Ensure tabs wrap on small screens */}
+                        <div className="flex flex-wrap mb-0 -space-x-1">
                             <button
                                 className={`tab-button ${activeTab === 'orders' ? 'tab-active' : 'tab-inactive'}`}
                                 onClick={() => setActiveTab('orders')}
